@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 export const TemplatesView = () => {
   const { toast } = useToast();
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const navigate = useNavigate();
 
   const templates = [
     {
@@ -62,7 +63,11 @@ export const TemplatesView = () => {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
-          <Card key={template.id} className={`hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedTemplate === template.id ? "ring-2 ring-primary" : ""}`}>
+          <Card
+            key={template.id}
+            className={`hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedTemplate === template.id ? "ring-2 ring-primary" : ""}`}
+            onClick={() => navigate(`/inde/${template.id}`)}
+          >
             <CardHeader className="p-0">
               <div className="relative">
                 <img 
@@ -84,6 +89,7 @@ export const TemplatesView = () => {
                 )}
               </div>
             </CardHeader>
+
             <CardContent className="p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -92,14 +98,25 @@ export const TemplatesView = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">{template.description}</p>
                 <div className="flex space-x-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent parent card click
+                      navigate(template.id === "minimal" ? "/index" : `/templates/${template.id}`);
+                    }}
+                  >
                     <Eye className="w-4 h-4 mr-2" />
                     Preview
                   </Button>
                   <Button 
                     size="sm" 
                     className="flex-1"
-                    onClick={() => handleSelectTemplate(template.id)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent parent card click
+                      handleSelectTemplate(template.id);
+                    }}
                     disabled={selectedTemplate === template.id}
                   >
                     <Download className="w-4 h-4 mr-2" />
@@ -130,4 +147,4 @@ export const TemplatesView = () => {
       </Card>
     </div>
   );
-};
+}; 
