@@ -1,11 +1,12 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Wrench, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -40,7 +41,7 @@ const NotFound = () => {
         </div>
         
         <Button 
-          onClick={() => window.history.back()} 
+          onClick={() => navigate('/')} 
           className="px-8 py-3 font-medium hover:scale-105 transition-transform duration-200 animate-fade-in-up animation-delay-600"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
