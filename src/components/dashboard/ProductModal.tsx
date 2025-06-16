@@ -1,5 +1,5 @@
 
-import { useState, useRef  } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ interface ProductModalProps {
      onSave: (product: Product) => void;
    }
 
-   export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductModalProps) => {
+export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductModalProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Product>({
         id: product?.id || Date.now().toString(),
@@ -29,8 +29,38 @@ interface ProductModalProps {
         stock: product?.stock || 0,
         description: product?.description || "",
     });
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   
+  // Update form data when product changes
+  useEffect(() => {
+    if (product) {
+      setFormData({
+        id: product.id,
+        name: product.name || "",
+        price: product.price || 0,
+        originalPrice: product.originalPrice,
+        image: product.image || "",
+        category: product.category || "",
+        status: product.status || "active",
+        stock: product.stock || 0,
+        description: product.description || "",
+      });
+    } else {
+      // Reset form for new product
+      setFormData({
+        id: Date.now().toString(),
+        name: "",
+        price: 0,
+        originalPrice: undefined,
+        image: "",
+        category: "",
+        status: "active",
+        stock: 0,
+        description: "",
+      });
+    }
+  }, [product]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
@@ -39,21 +69,22 @@ interface ProductModalProps {
     });
     onSave(formData);
   };
-  const handleChange = (field: string, value: string) => {
+  
+  const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-       const reader = new FileReader();
-        reader.onload = (ev) => {
-          if (ev.target?.result) {
-            handleChange("image", ev.target.result as string);
-          }
-        };
-        reader.readAsDataURL(file);
-      };
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      if (ev.target?.result) {
+        handleChange("image", ev.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

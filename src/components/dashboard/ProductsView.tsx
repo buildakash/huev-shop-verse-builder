@@ -6,39 +6,24 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { ProductModal } from "./ProductModal";
 import { useProducts, Product } from "@/context/ProductContext";
+import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const ProductsView = () => {
-
-    const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const { products, addProduct, updateProduct } = useProducts();
-
-  // const products = [
-  //   {
-  //     id: 1,
-  //     name: "Premium Wireless Headphones",
-  //     price: 199.99,
-  //     stock: 45,
-  //     status: "active",
-  //     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Smart Fitness Watch",
-  //     price: 299.99,
-  //     stock: 23,
-  //     status: "active",
-  //     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Bluetooth Speaker",
-  //     price: 79.99,
-  //     stock: 0,
-  //     status: "out_of_stock",
-  //     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=100&h=100&fit=crop"
-  //   }
-  // ];
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -48,6 +33,19 @@ export const ProductsView = () => {
   const handleEditProduct = (product: any) => {
     setEditingProduct(product);
     setShowModal(true);
+  };
+
+  const handleDeleteConfirm = (id: string) => {
+    setProductToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (productToDelete) {
+      deleteProduct(productToDelete);
+      setProductToDelete(null);
+    }
+    setDeleteDialogOpen(false);
   };
 
   return (
@@ -89,9 +87,11 @@ export const ProductsView = () => {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <Eye className="w-4 h-4" />
-                  </Button>
+                  <Link to={`/product/${product.id}`}>
+                    <Button variant="ghost" size="icon">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </Link>
                   <Button 
                     variant="ghost" 
                     size="icon" 
@@ -99,7 +99,11 @@ export const ProductsView = () => {
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => handleDeleteConfirm(product.id)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -122,6 +126,22 @@ export const ProductsView = () => {
           setShowModal(false);
         }}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the product
+              from your inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

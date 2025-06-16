@@ -21,9 +21,9 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">H</span>
+              <span className="text-primary-foreground font-bold text-lg">PA</span>
             </div>
-            <span className="text-xl font-bold">Huev</span>
+            <span className="text-xl font-bold">Pocket Angadi</span>
           </Link>
 
           {/* Search Bar */}
@@ -41,11 +41,7 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
 
           {/* Navigation */}
           <div className="flex items-center space-x-4">
-            <Link to="/dashboard">
-              <Button variant="ghost" className="hidden md:flex">
-                Sell on Huev
-              </Button>
-            </Link>
+       
             
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />

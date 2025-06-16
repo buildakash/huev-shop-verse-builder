@@ -47,9 +47,9 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">H</span>
+                <span className="text-primary-foreground font-bold text-lg">PA</span>
               </div>
-              <span className="text-xl font-bold">Huev</span>
+              <span className="text-xl font-bold">Pocket Angadi</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/marketplace">
@@ -210,9 +210,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-6 h-6 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">H</span>
+              <span className="text-primary-foreground font-bold text-sm">PA</span>
             </div>
-            <span className="text-lg font-bold">Huev</span>
+            <span className="text-lg font-bold">Pocket Angadi</span>
           </div>
           <p className="text-muted-foreground">
             Build your store. Reach more customers. Grow your business.

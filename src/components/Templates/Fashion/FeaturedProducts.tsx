@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import ProductCard from "./ProductCard";
-import { Pencil, Check, X } from "lucide-react";
-import { useProducts   } from "@/context/ProductContext";
+import { Pencil, Check, X, Trash2 } from "lucide-react";
+import { useProducts } from "@/context/ProductContext";
 
 interface Product {
   id: string;
@@ -12,10 +12,8 @@ interface Product {
   category: string;
 }
 
-
-
-  const FeaturedProducts = () => {
-      const { products, updateProduct } = useProducts();
+const FeaturedProducts = () => {
+  const { products, updateProduct, deleteProduct } = useProducts();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [tempProduct, setTempProduct] = useState<Product | null>(products[0] ? { ...products[0], category: products[0].category || '' } : null);
   const [updateMessage, setUpdateMessage] = useState("");
@@ -36,19 +34,27 @@ interface Product {
   };
 
   const saveEdit = () => {
-    if (editingIndex === null) return;
-   updateProduct(tempProduct);
+    if (editingIndex === null || !tempProduct) return;
+    updateProduct(tempProduct);
     setEditingIndex(null);
     showUpdateMessage("Product updated");
   };
 
+  const handleDeleteProduct = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      deleteProduct(id);
+      showUpdateMessage("Product deleted");
+    }
+  };
+
   const handleFieldChange = (field: keyof Product, value: string | number) => {
-    setTempProduct((prev) => ({ ...prev, [field]: value }));
+    if (!tempProduct) return;
+    setTempProduct((prev) => prev ? { ...prev, [field]: value } : null);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !tempProduct) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (ev.target?.result) {
@@ -86,8 +92,8 @@ interface Product {
                   {/* Image Editor */}
                   <div className="relative">
                     <img
-                      src={tempProduct.image}
-                      alt={tempProduct.name}
+                      src={tempProduct?.image}
+                      alt={tempProduct?.name}
                       className="w-full h-48 object-cover rounded"
                     />
                     <button
@@ -109,7 +115,7 @@ interface Product {
                   {/* Name */}
                   <input
                     type="text"
-                    value={tempProduct.name}
+                    value={tempProduct?.name || ''}
                     onChange={(e) =>
                       handleFieldChange("name", e.target.value)
                     }
@@ -120,7 +126,7 @@ interface Product {
                   <div className="flex gap-2">
                     <input
                       type="number"
-                      value={tempProduct.price}
+                      value={tempProduct?.price || 0}
                       onChange={(e) =>
                         handleFieldChange("price", Number(e.target.value))
                       }
@@ -129,7 +135,7 @@ interface Product {
                     />
                     <input
                       type="number"
-                      value={tempProduct.originalPrice || 0}
+                      value={tempProduct?.originalPrice || 0}
                       onChange={(e) =>
                         handleFieldChange(
                           "originalPrice",
@@ -144,7 +150,7 @@ interface Product {
                   {/* Category */}
                   <input
                     type="text"
-                    value={tempProduct.category}
+                    value={tempProduct?.category || ''}
                     onChange={(e) =>
                       handleFieldChange("category", e.target.value)
                     }
@@ -173,13 +179,22 @@ interface Product {
               ) : (
                 <>
                   <ProductCard {...prod} category={prod.category || ''} />
-                  <button
-                    onClick={() => startEdit(idx)}
-                    className="absolute top-2 right-2 bg-white p-1 rounded-full shadow hover:bg-gray-200 z-10"
-                    title="Edit product"
-                  >
-                    <Pencil size={16} />
-                  </button>
+                  <div className="absolute top-2 right-2 flex space-x-1 z-10">
+                    <button
+                      onClick={() => startEdit(idx)}
+                      className="bg-white p-1 rounded-full shadow hover:bg-gray-200"
+                      title="Edit product"
+                    >
+                      <Pencil size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduct(prod.id)}
+                      className="bg-white p-1 rounded-full shadow hover:bg-gray-200"
+                      title="Delete product"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </>
               )}
             </div>

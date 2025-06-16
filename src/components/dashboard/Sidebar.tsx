@@ -41,9 +41,9 @@ export const Sidebar = ({ activeView, setActiveView, isCollapsed, setIsCollapsed
           {!isCollapsed && (
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold">H</span>
+                <span className="text-primary-foreground font-bold">PA</span>
               </div>
-              <span className="text-xl font-bold">Huev</span>
+              <span className="text-xl font-bold">Pocket Angadi</span>
             </Link>
           )}
           <Button

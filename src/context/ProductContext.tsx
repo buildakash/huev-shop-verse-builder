@@ -25,6 +25,7 @@ interface ProductContextType {
   products: Product[];
   addProduct: (p: Product) => void;
   updateProduct: (p: Product) => void;
+  deleteProduct: (id: string) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -97,9 +98,12 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const updateProduct = (p: Product) => {
     setProducts((prev) => prev.map((x) => (x.id === p.id ? p : x)));
   };
+  const deleteProduct = (id: string) => {
+    setProducts((prev) => prev.filter((x) => x.id !== id));
+  };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
       {children}
     </ProductContext.Provider>
   );
