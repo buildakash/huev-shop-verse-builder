@@ -82,9 +82,9 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
           </h3>
         </Link>
         <div className="flex items-center space-x-2">
-          <span className="font-semibold text-gray-900 text-sm sm:text-base">${price}</span>
+          <span className="font-semibold text-gray-900 text-sm sm:text-base">₹{price}</span>
           {originalPrice && (
-            <span className="text-xs sm:text-sm text-gray-500 line-through">${originalPrice}</span>
+            <span className="text-xs sm:text-sm text-gray-500 line-through">₹{originalPrice}</span>
           )}
         </div>
       </div>
