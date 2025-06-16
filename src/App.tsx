@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,33 +12,40 @@ import NotFound from "./pages/NotFound";
 import Cart from "./pages/Templates/Fashion/Cart";
 import Checkout from "./pages/Templates/Fashion/Checkout";
 import Products from "./pages/Templates/Fashion/Products";
+import { ProductProvider } from "@/context/ProductContext";
+import { CartProvider } from "@/context/CartContext";
+import { CartDropdown } from "@/components/marketplace/CartDropdown";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="*" element={<NotFound />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/iheckout" element={<Checkout />} />
-          <Route path="/index" element={<IndexF />}/>
-          <Route path="/NotFound" element={<NotFound />} />
-          <Route path="/productDetail" element={<ProductDetail />} />
-          <Route path="/product" element={<Products />} />
 
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <CartProvider>
+            <ProductProvider>
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="*" element={<NotFound />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/iheckout" element={<Checkout />} />
+            <Route path="/index" element={<IndexF />} />
+            <Route path="/NotFound" element={<NotFound />} />
+            <Route path="/productDetail" element={<ProductDetail />} />
+            <Route path="/product" element={<Products />} />
+          </Routes>
+            </ProductProvider>
+          </CartProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+ 
 );
 
 export default App;
-
