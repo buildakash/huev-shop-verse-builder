@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Product } from "@/context/ProductContext";
+import { Product, useProducts } from "@/context/ProductContext";
 
 interface ProductModalProps {
      open: boolean;
@@ -18,6 +19,9 @@ interface ProductModalProps {
 
 export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductModalProps) => {
   const { toast } = useToast();
+  const { getCategories } = useProducts();
+  const existingCategories = getCategories();
+  
   const [formData, setFormData] = useState<Product>({
         id: product?.id || Date.now().toString(),
         name: product?.name || "",
@@ -88,7 +92,7 @@ export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductMo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{product ? "Edit Product" : "Add New Product"}</DialogTitle>
         </DialogHeader>
@@ -105,9 +109,37 @@ export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductMo
             />
           </div>
 
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select or enter category" />
+              </SelectTrigger>
+              <SelectContent>
+                {existingCategories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Fashion">Fashion</SelectItem>
+                <SelectItem value="Home & Garden">Home & Garden</SelectItem>
+                <SelectItem value="Sports">Sports</SelectItem>
+                <SelectItem value="Books">Books</SelectItem>
+                <SelectItem value="Beauty">Beauty</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              className="mt-2"
+              value={formData.category}
+              onChange={(e) => handleChange("category", e.target.value)}
+              placeholder="Or type custom category"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price (₹)</Label>
               <Input
                 id="price"
                 type="number"

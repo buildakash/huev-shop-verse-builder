@@ -8,6 +8,7 @@ import { OrdersView } from "@/components/dashboard/OrdersView";
 import { TemplatesView } from "@/components/dashboard/TemplatesView";
 import { SettingsView } from "@/components/dashboard/SettingsView";
 import { ProductProvider } from "@/context/ProductContext";
+import { WebsiteProvider } from "@/context/WebsiteContext";
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState("dashboard");
@@ -31,24 +32,25 @@ const Dashboard = () => {
   };
 
   return (
-   <ProductProvider>
-     <div className="min-h-screen bg-background flex">
-      <Sidebar 
-        activeView={activeView} 
-        setActiveView={setActiveView}
-        isCollapsed={isSidebarCollapsed}
-        setIsCollapsed={setIsSidebarCollapsed}
-      />
-      <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? "ml-16" : "ml-64"}`}>
-        <DashboardHeader />
-        <main className="p-6">
-          {renderView()}
-        </main>
-      </div>
-    </div>
-   </ProductProvider>
+    <WebsiteProvider>
+      <ProductProvider>
+        <div className="min-h-screen bg-background flex">
+          <Sidebar 
+            activeView={activeView} 
+            setActiveView={setActiveView}
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+          />
+          <div className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? "ml-16" : "ml-64"}`}>
+            <DashboardHeader />
+            <main className="p-6">
+              {renderView()}
+            </main>
+          </div>
+        </div>
+      </ProductProvider>
+    </WebsiteProvider>
   );
 };
 
 export default Dashboard;
-
