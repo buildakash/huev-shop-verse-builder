@@ -32,8 +32,8 @@ const initialProducts: Product[] = [
   {
     id: "1",
     name: "Premium Wireless Headphones",
-    price: 199.99,
-    originalPrice: 249.99,
+    price: 16599,
+    originalPrice: 20749,
     rating: 4.8,
     reviews: 127,
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
@@ -44,8 +44,8 @@ const initialProducts: Product[] = [
   {
     id: "2",
     name: "Smart Fitness Watch",
-    price: 299.99,
-    originalPrice: 399.99,
+    price: 24899,
+    originalPrice: 33199,
     rating: 4.6,
     reviews: 89,
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
@@ -56,8 +56,8 @@ const initialProducts: Product[] = [
   {
     id: "3",
     name: "Bluetooth Speaker",
-    price: 79.99,
-    originalPrice: 99.99,
+    price: 6639,
+    originalPrice: 8299,
     rating: 4.4,
     reviews: 203,
     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
@@ -68,8 +68,8 @@ const initialProducts: Product[] = [
   {
     id: "4",
     name: "Designer Backpack",
-    price: 89.99,
-    originalPrice: 120.00,
+    price: 7479,
+    originalPrice: 9960,
     rating: 4.7,
     reviews: 156,
     image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
@@ -80,8 +80,8 @@ const initialProducts: Product[] = [
   {
     id: "5",
     name: "Coffee Maker Pro",
-    price: 149.99,
-    originalPrice: 199.99,
+    price: 12459,
+    originalPrice: 16599,
     rating: 4.5,
     reviews: 92,
     image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
@@ -92,8 +92,8 @@ const initialProducts: Product[] = [
   {
     id: "6",
     name: "Running Shoes",
-    price: 129.99,
-    originalPrice: 160.00,
+    price: 10799,
+    originalPrice: 13280,
     rating: 4.6,
     reviews: 234,
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
@@ -109,6 +109,7 @@ const ProductContext = createContext<{
   addProduct(p:Product):void; 
   updateProduct(p:Product):void; 
   deleteProduct(id:string):void;
+  getCategories():string[];
 } | undefined>(undefined);
 
 export const useProducts = () => {
@@ -138,9 +139,13 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setProducts((prev) => prev.filter((x) => x.id !== id));
   };
   
+  const getCategories = () => {
+    const categories = products.map(p => p.category).filter(Boolean);
+    return [...new Set(categories)] as string[];
+  };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, getCategories }}>
       {children}
     </ProductContext.Provider>
   );

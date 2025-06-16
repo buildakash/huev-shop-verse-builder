@@ -1,4 +1,4 @@
-  
+
 import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,92 +17,17 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const { products } = useProducts(); 
 
-  // const products = [
-  //   {
-  //     id: 1,
-  //     name: "Premium Wireless Headphones",
-  //     price: 199.99,
-  //     originalPrice: 249.99,
-  //     rating: 4.8,
-  //     reviews: 127,
-  //     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
-  //     category: "Electronics",
-  //     store: "AudioTech Pro",
-  //     freeShipping: true
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Smart Fitness Watch",
-  //     price: 299.99,
-  //     originalPrice: 399.99,
-  //     rating: 4.6,
-  //     reviews: 89,
-  //     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
-  //     category: "Electronics",
-  //     store: "FitTech",
-  //     freeShipping: true
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Bluetooth Speaker",
-  //     price: 79.99,
-  //     originalPrice: 99.99,
-  //     rating: 4.4,
-  //     reviews: 203,
-  //     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
-  //     category: "Electronics",
-  //     store: "SoundWave",
-  //     freeShipping: false
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Designer Backpack",
-  //     price: 89.99,
-  //     originalPrice: 120.00,
-  //     rating: 4.7,
-  //     reviews: 156,
-  //     image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
-  //     category: "Fashion",
-  //     store: "Urban Style",
-  //     freeShipping: true
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Coffee Maker Pro",
-  //     price: 149.99,
-  //     originalPrice: 199.99,
-  //     rating: 4.5,
-  //     reviews: 92,
-  //     image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
-  //     category: "Home & Garden",
-  //     store: "Kitchen Essentials",
-  //     freeShipping: true
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Running Shoes",
-  //     price: 129.99,
-  //     originalPrice: 160.00,
-  //     rating: 4.6,
-  //     reviews: 234,
-  //     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-  //     category: "Sports",
-  //     store: "SportMax",
-  //     freeShipping: true
-  //   }
-  // ];
-
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.store.toLowerCase().includes(searchQuery.toLowerCase());
+                           (product.store || '').toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesCategory = !filters.category || product.category === filters.category;
       
       const matchesPrice = (!filters.minPrice || product.price >= parseFloat(filters.minPrice)) &&
                           (!filters.maxPrice || product.price <= parseFloat(filters.maxPrice));
       
-      const matchesRating = !filters.rating || product.rating >= parseFloat(filters.rating);
+      const matchesRating = !filters.rating || (product.rating || 0) >= parseFloat(filters.rating);
       
       return matchesSearch && matchesCategory && matchesPrice && matchesRating;
     });
@@ -116,9 +41,9 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
       case "price-high":
         return sorted.sort((a, b) => b.price - a.price);
       case "rating":
-        return sorted.sort((a, b) => b.rating - a.rating);
+        return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case "reviews":
-        return sorted.sort((a, b) => b.reviews - a.reviews);
+        return sorted.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
       default:
         return sorted;
     }
@@ -179,7 +104,7 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                     className={`w-4 h-4 ${wishlist.includes(Number(product.id)) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
                   />
                 </Button>
-                {product.originalPrice > product.price && (
+                {product.originalPrice && product.originalPrice > product.price && (
                   <Badge className="absolute top-2 left-2" variant="destructive">
                     {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
                   </Badge>
@@ -209,7 +134,7 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                     {[...Array(5)].map((_, i) => (
                       <Star 
                         key={i} 
-                        className={`w-3 h-3 ${i < Math.floor(product.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
+                        className={`w-3 h-3 ${i < Math.floor(product.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
                       />
                     ))}
                   </div>
@@ -219,10 +144,10 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <span className="text-lg font-bold">${product.price}</span>
-                  {product.originalPrice > product.price && (
+                  <span className="text-lg font-bold">₹{product.price.toLocaleString()}</span>
+                  {product.originalPrice && product.originalPrice > product.price && (
                     <span className="text-sm text-muted-foreground line-through">
-                      ${product.originalPrice}
+                      ₹{product.originalPrice.toLocaleString()}
                     </span>
                   )}
                 </div>

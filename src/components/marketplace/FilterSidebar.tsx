@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
+import { useProducts } from "@/context/ProductContext";
 
 interface FilterSidebarProps {
   filters: any;
@@ -13,23 +13,15 @@ interface FilterSidebarProps {
 }
 
 export const FilterSidebar = ({ filters, setFilters }: FilterSidebarProps) => {
-  const categories = [
-    "Electronics",
-    "Fashion", 
-    "Home & Garden",
-    "Sports",
-    "Books",
-    "Beauty",
-    "Toys",
-    "Automotive"
-  ];
+  const { getCategories } = useProducts();
+  const categories = getCategories();
 
   const priceRanges = [
-    { label: "Under $25", value: "0-25" },
-    { label: "$25 - $50", value: "25-50" },
-    { label: "$50 - $100", value: "50-100" },
-    { label: "$100 - $200", value: "100-200" },
-    { label: "Over $200", value: "200+" }
+    { label: "Under ₹2,000", value: "0-2000" },
+    { label: "₹2,000 - ₹5,000", value: "2000-5000" },
+    { label: "₹5,000 - ₹10,000", value: "5000-10000" },
+    { label: "₹10,000 - ₹25,000", value: "10000-25000" },
+    { label: "Over ₹25,000", value: "25000+" }
   ];
 
   const ratings = [4, 3, 2, 1];
@@ -88,19 +80,19 @@ export const FilterSidebar = ({ filters, setFilters }: FilterSidebarProps) => {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label htmlFor="minPrice" className="text-xs text-muted-foreground">Min</Label>
+                  <Label htmlFor="minPrice" className="text-xs text-muted-foreground">Min (₹)</Label>
                   <Input
                     id="minPrice"
-                    placeholder="$0"
+                    placeholder="0"
                     value={filters.minPrice}
                     onChange={(e) => updateFilter("minPrice", e.target.value)}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">Max</Label>
+                  <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">Max (₹)</Label>
                   <Input
                     id="maxPrice"
-                    placeholder="$1000"
+                    placeholder="50000"
                     value={filters.maxPrice}
                     onChange={(e) => updateFilter("maxPrice", e.target.value)}
                   />
@@ -113,11 +105,11 @@ export const FilterSidebar = ({ filters, setFilters }: FilterSidebarProps) => {
                     <Checkbox
                       id={range.value}
                       checked={
-                        (range.value === "0-25" && filters.minPrice === "0" && filters.maxPrice === "25") ||
-                        (range.value === "25-50" && filters.minPrice === "25" && filters.maxPrice === "50") ||
-                        (range.value === "50-100" && filters.minPrice === "50" && filters.maxPrice === "100") ||
-                        (range.value === "100-200" && filters.minPrice === "100" && filters.maxPrice === "200") ||
-                        (range.value === "200+" && filters.minPrice === "200" && filters.maxPrice === "")
+                        (range.value === "0-2000" && filters.minPrice === "0" && filters.maxPrice === "2000") ||
+                        (range.value === "2000-5000" && filters.minPrice === "2000" && filters.maxPrice === "5000") ||
+                        (range.value === "5000-10000" && filters.minPrice === "5000" && filters.maxPrice === "10000") ||
+                        (range.value === "10000-25000" && filters.minPrice === "10000" && filters.maxPrice === "25000") ||
+                        (range.value === "25000+" && filters.minPrice === "25000" && filters.maxPrice === "")
                       }
                       onCheckedChange={(checked) => {
                         if (checked) {
