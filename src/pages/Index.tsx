@@ -13,7 +13,7 @@ const Index = () => {
     {
       id: "starter",
       name: "Starter",
-      price: "$29",
+      price: "₹2,299",
       period: "/month",
       description: "Perfect for new sellers",
       features: ["Up to 100 products", "Basic analytics", "Standard templates", "Email support"],
@@ -22,7 +22,7 @@ const Index = () => {
     {
       id: "pro",
       name: "Pro",
-      price: "$79",
+      price: "₹6,299",
       period: "/month",
       description: "For growing businesses",
       features: ["Unlimited products", "Advanced analytics", "Premium templates", "Priority support", "Custom domain"],
@@ -31,7 +31,7 @@ const Index = () => {
     {
       id: "enterprise",
       name: "Enterprise",
-      price: "$199",
+      price: "₹15,999",
       period: "/month",
       description: "For large scale operations",
       features: ["Everything in Pro", "White-label solution", "API access", "Dedicated support", "Custom integrations"],

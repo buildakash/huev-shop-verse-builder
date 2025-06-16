@@ -13,9 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 interface ProductGridProps {
   searchQuery: string;
   filters: any;
+  handleProductView: (id: string) => void;
 }
 
-export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
+export const ProductGrid = ({ searchQuery, filters, handleProductView }: ProductGridProps) => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const { products } = useProducts(); 
   const { addToCart } = useCart();
@@ -113,13 +114,13 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
           <Card key={product.id} className="group hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <CardContent className="p-0">
               <div className="relative">
-                <Link to={`/product/${product.id}`}>
+                <button onClick={() => handleProductView(product.id)} className="w-full">
                   <img 
                     src={product.image} 
                     alt={product.name}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                </Link>
+                </button>
                 
                 {/* Add to Cart Button - Marketplace Context */}
                 <Button
@@ -159,11 +160,11 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                   )}
                 </div>
                 
-                <Link to={`/product/${product.id}`}>
+                <button onClick={() => handleProductView(product.id)} className="w-full text-left">
                   <h3 className="font-medium line-clamp-2 hover:text-primary transition-colors">
                     {product.name}
                   </h3>
-                </Link>
+                </button>
                 
                 <div className="flex items-center space-x-1">
                   <div className="flex items-center">

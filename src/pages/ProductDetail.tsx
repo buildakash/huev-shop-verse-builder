@@ -153,12 +153,12 @@ const ProductDetail: React.FC = () => {
 
           {/* Price */}
           <div className="flex items-center space-x-2">
-            <span className="text-3xl font-bold">${product.price}</span>
+            <span className="text-3xl font-bold">₹{product.price}</span>
             {product.originalPrice != null &&
               product.originalPrice > product.price && (
                 <>
                   <span className="text-lg text-muted-foreground line-through">
-                    ${product.originalPrice}
+                    ₹{product.originalPrice}
                   </span>
                   <Badge variant="destructive">
                     {Math.round(

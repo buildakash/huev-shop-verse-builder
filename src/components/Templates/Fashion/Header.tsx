@@ -1,3 +1,4 @@
+
 // src/components/Templates/Fashion/Header.tsx
 
 import React, { useState, useRef } from "react";
@@ -82,14 +83,15 @@ const Header: React.FC = () => {
               ) : (
                 <>
                   <h1 className="text-2xl font-bold text-gray-900">{logoText}</h1>
-                  <Pencil
-                    className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer"
-                    title="Edit logo"
+                  <button
                     onClick={() => {
                       setEditingLogo(true);
                       setTimeout(() => inputRef.current?.focus(), 0);
                     }}
-                  />
+                    aria-label="Edit logo"
+                  >
+                    <Pencil className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                  </button>
                 </>
               )}
             </div>
@@ -128,14 +130,15 @@ const Header: React.FC = () => {
                       >
                         {item.label}
                       </a>
-                      <Pencil
-                        className="w-4 h-4 text-gray-400 hover:text-gray-600 ml-1 cursor-pointer"
-                        title="Edit nav item"
+                      <button
                         onClick={() => {
                           setEditingNavIndex(idx);
                           setTimeout(() => inputRef.current?.focus(), 0);
                         }}
-                      />
+                        aria-label="Edit nav item"
+                      >
+                        <Pencil className="w-4 h-4 text-gray-400 hover:text-gray-600 ml-1 cursor-pointer" />
+                      </button>
                     </>
                   )}
                 </div>
@@ -200,14 +203,16 @@ const Header: React.FC = () => {
                   <a href={item.href} className="text-gray-700 hover:text-gray-900">
                     {item.label}
                   </a>
-                  <Pencil
-                    className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  <button
                     onClick={() => {
                       setEditingNavIndex(idx);
                       setIsMenuOpen(false);
                       setTimeout(() => inputRef.current?.focus(), 0);
                     }}
-                  />
+                    aria-label="Edit nav item"
+                  >
+                    <Pencil className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                  </button>
                 </div>
               ))}
               <Button
