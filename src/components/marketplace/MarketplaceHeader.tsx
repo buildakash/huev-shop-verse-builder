@@ -1,19 +1,23 @@
+// src/components/marketplace/MarketplaceHeader.tsx
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, User, Menu } from "lucide-react";
+import { Search, User, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
+// 🔑 Correct import using your alias
+import { CartDropdown } from "@/components/marketplace/CartDropdown";
 
 interface MarketplaceHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
 
-export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHeaderProps) => {
-  const [cartCount] = useState(3);
-
+export const MarketplaceHeader = ({
+  searchQuery,
+  setSearchQuery,
+}: MarketplaceHeaderProps) => {
   return (
     <header className="border-b border-border/40 backdrop-blur-lg bg-background/80 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -21,7 +25,9 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">H</span>
+              <span className="text-primary-foreground font-bold text-lg">
+                H
+              </span>
             </div>
             <span className="text-xl font-bold">Huev</span>
           </Link>
@@ -39,22 +45,16 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
             </div>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation & Cart */}
           <div className="flex items-center space-x-4">
             <Link to="/dashboard">
               <Button variant="ghost" className="hidden md:flex">
                 Sell on Huev
               </Button>
             </Link>
-            
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs">
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
+
+            {/* Cart dropdown */}
+            <CartDropdown />
 
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />
@@ -68,7 +68,14 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
 
         {/* Categories */}
         <div className="hidden md:flex items-center space-x-6 py-2 border-t border-border/40">
-          {["Electronics", "Fashion", "Home & Garden", "Sports", "Books", "Beauty"].map((category) => (
+          {[
+            "Electronics",
+            "Fashion",
+            "Home & Garden",
+            "Sports",
+            "Books",
+            "Beauty",
+          ].map((category) => (
             <button
               key={category}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -81,3 +88,4 @@ export const MarketplaceHeader = ({ searchQuery, setSearchQuery }: MarketplaceHe
     </header>
   );
 };
+  
