@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -13,16 +14,21 @@ export interface CartItem {
 }
 
 interface CartDropdownProps {
-  items: CartItem[];
+  onClose?: () => void;
 }
 
-export const CartDropdown = () => {
+export const CartDropdown = ({ onClose }: CartDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-    const { cartItems } = useCart();  // ← real cart data
-    const items = cartItems;
+  const { cartItems } = useCart();  // ← real cart data
+  const items = cartItems;
 
   const totalQty = items.reduce((sum, it) => sum + it.qty, 0);
   const totalPrice = items.reduce((sum, it) => sum + it.qty * it.price, 0);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    if (onClose) onClose();
+  };
 
   return (
     <div className="relative">
@@ -44,7 +50,7 @@ export const CartDropdown = () => {
         <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50">
           <div className="p-4 border-b flex justify-between items-center">
             <h4 className="font-semibold">Your Cart</h4>
-            <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700">
+            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
               <X size={16} />
             </button>
           </div>
