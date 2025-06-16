@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ export const SaveWebsiteModal = ({ open, onOpenChange }: SaveWebsiteModalProps) 
   const [websiteUrl, setWebsiteUrl] = useState("");
   const { saveAsNewWebsite } = useWebsite();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,18 @@ export const SaveWebsiteModal = ({ open, onOpenChange }: SaveWebsiteModalProps) 
       return;
     }
 
-    saveAsNewWebsite();
+    const urlSlug = websiteUrl.trim() || websiteName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    
+    saveAsNewWebsite({
+      name: websiteName,
+      url: urlSlug,
+      content: {
+        heroTitle: 'Welcome to Our Store',
+        heroSubtitle: 'Discover amazing products',
+        logoText: 'FASHION'
+      }
+    });
+
     toast({
       title: "Website Saved Successfully!",
       description: `Your website "${websiteName}" is now live and active.`,
@@ -38,6 +51,9 @@ export const SaveWebsiteModal = ({ open, onOpenChange }: SaveWebsiteModalProps) 
     setWebsiteName("");
     setWebsiteUrl("");
     onOpenChange(false);
+    
+    // Navigate to the live website
+    navigate(`/live/${urlSlug}`);
   };
 
   return (
@@ -68,7 +84,7 @@ export const SaveWebsiteModal = ({ open, onOpenChange }: SaveWebsiteModalProps) 
               placeholder="my-store-name"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Your website will be available at: {websiteUrl || "your-store"}.pocket-angadi.com
+              Your website will be available at: /live/{websiteUrl || websiteName.toLowerCase().replace(/\s+/g, '-')}
             </p>
           </div>
 
