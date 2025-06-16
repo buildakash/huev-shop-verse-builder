@@ -1,7 +1,7 @@
 // src/pages/Templates/Fashion/Checkout.tsx
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "@/components/Templates/Fashion/Header";
 import Footer from "@/components/Templates/Fashion/Footer";
 import { Button } from "@/components/ui/button";
@@ -16,24 +16,37 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useCart } from "@/context/CartContext";
+import { useProducts } from "@/context/ProductContext";
 import { usePurchaseContext } from "@/hooks/usePurchaseContext";
 import { WebsiteProvider } from "@/context/WebsiteContext";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 // Marketplace wrappers
 import { MarketplaceHeader } from "@/components/marketplace/MarketplaceHeader";
 import { MarketplaceFooter } from "@/components/marketplace/MarketplaceFooter";
 
 const Checkout: React.FC = () => {
-  // ─── Context & state ────────────────────────────────────────────────
-  const { purchaseContext, storeId, storeName } = usePurchaseContext();
+  const { purchaseContext, storeId } = usePurchaseContext();
   const {
     getMarketplaceItems,
     getStoreItems,
     getMarketplaceTotalPrice,
     getStoreTotalPrice,
+    clearCart,               // ← clearCart action
   } = useCart();
+  const { products, updateProduct } = useProducts();
+  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -49,7 +62,7 @@ const Checkout: React.FC = () => {
     nameOnCard: "",
   });
 
-  // ─── Derived data ───────────────────────────────────────────────────
+  // Derive items & totals
   const items =
     purchaseContext === "marketplace"
       ? getMarketplaceItems()
@@ -59,54 +72,60 @@ const Checkout: React.FC = () => {
       ? getMarketplaceTotalPrice()
       : getStoreTotalPrice(storeId);
 
-  const continueShoppingLink =
-    purchaseContext === "marketplace"
-      ? "/marketplace"
-      : `/live/${storeId}`;
+  const continueTo = purchaseContext === "marketplace"
+    ? "/marketplace"
+    : `/live/${storeId}`;
 
-  // ─── Handlers ───────────────────────────────────────────────────────
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: implement real checkout
-    alert("Order placed successfully!");
+
+    // 1) Decrement stock for each item
+    items.forEach(item => {
+      const prod = products.find(p => p.id === item.id);
+      if (prod) {
+        const newStock = Math.max(0, prod.stock - item.quantity);
+        updateProduct({
+          ...prod,
+          stock: newStock,
+          status: newStock > 0 ? "active" : "out_of_stock",
+        });
+      }
+    });
+
+    // 2) Clear the cart so header count resets
+    clearCart(purchaseContext);
+
+    // 3) Open confirmation dialog
+    setDialogOpen(true);
   };
 
-  // ─── Shared Checkout content ────────────────────────────────────────
   const CheckoutContent = (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Form */}
+        {/* BILLING FORM */}
         <div className="space-y-6">
-          {/* Contact Info */}
           <Card>
-            <CardHeader>
-              <CardTitle>Contact Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  required
-                />
-              </div>
+            <CardHeader><CardTitle>Contact Information</CardTitle></CardHeader>
+            <CardContent>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={e => handleInputChange("email", e.target.value)}
+                required
+              />
             </CardContent>
           </Card>
 
-          {/* Shipping Address */}
           <Card>
-            <CardHeader>
-              <CardTitle>Shipping Address</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Shipping Address</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -114,9 +133,7 @@ const Checkout: React.FC = () => {
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
+                    onChange={e => handleInputChange("firstName", e.target.value)}
                     required
                   />
                 </div>
@@ -125,33 +142,25 @@ const Checkout: React.FC = () => {
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
+                    onChange={e => handleInputChange("lastName", e.target.value)}
                     required
                   />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    handleInputChange("address", e.target.value)
-                  }
-                  required
-                />
-              </div>
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={formData.address}
+                onChange={e => handleInputChange("address", e.target.value)}
+                required
+              />
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="city">City</Label>
                   <Input
                     id="city"
                     value={formData.city}
-                    onChange={(e) =>
-                      handleInputChange("city", e.target.value)
-                    }
+                    onChange={e => handleInputChange("city", e.target.value)}
                     required
                   />
                 </div>
@@ -159,11 +168,9 @@ const Checkout: React.FC = () => {
                   <Label htmlFor="state">State</Label>
                   <Select
                     value={formData.state}
-                    onValueChange={(v) => handleInputChange("state", v)}
+                    onValueChange={v => handleInputChange("state", v)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ca">California</SelectItem>
                       <SelectItem value="ny">New York</SelectItem>
@@ -176,9 +183,7 @@ const Checkout: React.FC = () => {
                   <Input
                     id="zipCode"
                     value={formData.zipCode}
-                    onChange={(e) =>
-                      handleInputChange("zipCode", e.target.value)
-                    }
+                    onChange={e => handleInputChange("zipCode", e.target.value)}
                     required
                   />
                 </div>
@@ -186,24 +191,17 @@ const Checkout: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Payment Info */}
           <Card>
-            <CardHeader>
-              <CardTitle>Payment Information</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Payment Information</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="cardNumber">Card Number</Label>
-                <Input
-                  id="cardNumber"
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={(e) =>
-                    handleInputChange("cardNumber", e.target.value)
-                  }
-                  required
-                />
-              </div>
+              <Label htmlFor="cardNumber">Card Number</Label>
+              <Input
+                id="cardNumber"
+                placeholder="1234 5678 9012 3456"
+                value={formData.cardNumber}
+                onChange={e => handleInputChange("cardNumber", e.target.value)}
+                required
+              />
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <Label htmlFor="expiryDate">Expiry Date</Label>
@@ -211,9 +209,7 @@ const Checkout: React.FC = () => {
                     id="expiryDate"
                     placeholder="MM/YY"
                     value={formData.expiryDate}
-                    onChange={(e) =>
-                      handleInputChange("expiryDate", e.target.value)
-                    }
+                    onChange={e => handleInputChange("expiryDate", e.target.value)}
                     required
                   />
                 </div>
@@ -223,37 +219,29 @@ const Checkout: React.FC = () => {
                     id="cvv"
                     placeholder="123"
                     value={formData.cvv}
-                    onChange={(e) =>
-                      handleInputChange("cvv", e.target.value)
-                    }
+                    onChange={e => handleInputChange("cvv", e.target.value)}
                     required
                   />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="nameOnCard">Name on Card</Label>
-                <Input
-                  id="nameOnCard"
-                  value={formData.nameOnCard}
-                  onChange={(e) =>
-                    handleInputChange("nameOnCard", e.target.value)
-                  }
-                  required
-                />
-              </div>
+              <Label htmlFor="nameOnCard">Name on Card</Label>
+              <Input
+                id="nameOnCard"
+                value={formData.nameOnCard}
+                onChange={e => handleInputChange("nameOnCard", e.target.value)}
+                required
+              />
             </CardContent>
           </Card>
         </div>
 
-        {/* Order Summary */}
+        {/* ORDER SUMMARY */}
         <div>
           <Card className="sticky top-4">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-4 mb-6">
-                {items.map((item) => (
+                {items.map(item => (
                   <div
                     key={`${item.id}-${item.purchaseContext}-${item.storeId}`}
                     className="flex justify-between items-center"
@@ -266,14 +254,10 @@ const Checkout: React.FC = () => {
                       />
                       <div>
                         <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-600">
-                          Qty: {item.quantity}
-                        </p>
+                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <span>
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                    <span>${(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -294,17 +278,17 @@ const Checkout: React.FC = () => {
                 <hr />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>
-                    ${(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}
-                  </span>
+                  <span>${(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}</span>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w
+                -full">
                   Complete Order
                 </Button>
               </form>
+
               <Link to="/cart">
                 <Button variant="outline" className="w-full mt-2">
                   Back to Cart
@@ -317,7 +301,7 @@ const Checkout: React.FC = () => {
     </div>
   );
 
-  // ─── Conditional wrappers ────────────────────────────────────────────
+  // Wrap based on context
   if (purchaseContext === "marketplace") {
     return (
       <>
@@ -327,6 +311,26 @@ const Checkout: React.FC = () => {
         />
         {CheckoutContent}
         <MarketplaceFooter />
+        <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Thank you!</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your order has been placed successfully.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction
+                onClick={() => {
+                  setDialogOpen(false);
+                  navigate("/marketplace");
+                }}
+              >
+                Continue Shopping
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </>
     );
   }
@@ -336,6 +340,26 @@ const Checkout: React.FC = () => {
       <Header />
       {CheckoutContent}
       <Footer />
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Thank you!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your order has been placed successfully.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => {
+                setDialogOpen(false);
+                navigate(`/live/${storeId}`);
+              }}
+            >
+              Continue Shopping
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </WebsiteProvider>
   );
 };

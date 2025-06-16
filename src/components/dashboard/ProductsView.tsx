@@ -1,128 +1,119 @@
+// src/components/dashboard/ProductsView.tsx
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
-import { ProductModal } from "./ProductModal";
-import { useProducts, Product } from "@/context/ProductContext";
-import { Link } from "react-router-dom";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useProducts, Product } from "@/context/ProductContext";
+import { ProductModal } from "./ProductModal";
 
-export const ProductsView = () => {
+export const ProductsView: React.FC = () => {
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
-  const handleAddProduct = () => {
+  // 1) Sort so active items come first
+  const sortedProducts = [...products].sort((a, b) => {
+    if (a.status === b.status) return 0;
+    return a.status === "active" ? -1 : 1;
+  });
+
+  const handleAdd = () => {
     setEditingProduct(null);
     setShowModal(true);
   };
-
-  const handleEditProduct = (product: any) => {
-    setEditingProduct(product);
+  const handleEdit = (p: Product) => {
+    setEditingProduct(p);
     setShowModal(true);
   };
-
-  const handleDeleteConfirm = (id: string) => {
-    setProductToDelete(id);
-    setDeleteDialogOpen(true);
-  };
-
   const confirmDelete = () => {
-    if (productToDelete) {
-      deleteProduct(productToDelete);
-      setProductToDelete(null);
-    }
+    if (productToDelete) deleteProduct(productToDelete);
+    setProductToDelete(null);
     setDeleteDialogOpen(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Manage your product inventory</p>
-        </div>
-        <Button onClick={handleAddProduct} className="flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Add Product</span>
+        <h1 className="text-3xl font-bold">Products</h1>
+        <Button onClick={handleAdd} className="flex items-center space-x-2">
+          <Plus className="w-4 h-4" /> <span>Add Product</span>
         </Button>
       </div>
 
       <div className="grid gap-4">
-      {products.map((product) => (
+        {sortedProducts.map((product) => (
           <Card key={product.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                  <div>
-                    <h3 className="font-semibold">{product.name}</h3>
-                    <p className="text-2xl font-bold text-primary">${product.price}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant={product.status === "active" ? "default" : "destructive"}>
-                        {product.status === "active" ? "Active" : "Out of Stock"}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        Stock: {product.stock}
-                      </span>
-                    </div>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+                <div>
+                  <h3 className="font-semibold">{product.name}</h3>
+                  <p className="text-2xl font-bold text-primary">
+                    ${product.price}
+                  </p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Badge
+                      variant={product.status === "active" ? "default" : "destructive"}
+                    >
+                      {product.status === "active" ? "Active" : "Out of Stock"}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      Stock: {product.stock}
+                    </span>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Link to={`/product/${product.id}`}>
-                    <Button variant="ghost" size="icon">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </Link>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => handleEditProduct(product)}
-                  >
-                    <Edit className="w-4 h-4" />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Link to={`/product/${product.id}`}>
+                  <Button variant="ghost" size="icon">
+                    <Eye className="w-4 h-4" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => handleDeleteConfirm(product.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                </Link>
+                <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setProductToDelete(product.id);
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <ProductModal 
-        open={showModal} 
+      <ProductModal
+        open={showModal}
         onOpenChange={setShowModal}
         product={editingProduct}
         onSave={(prod) => {
-          if (editingProduct) {
-            updateProduct(prod);
-          } else {
-            addProduct(prod);
-          }
+          editingProduct ? updateProduct(prod) : addProduct(prod);
           setShowModal(false);
         }}
       />
@@ -130,10 +121,9 @@ export const ProductsView = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the product
-              from your inventory.
+              This will permanently delete the product.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
