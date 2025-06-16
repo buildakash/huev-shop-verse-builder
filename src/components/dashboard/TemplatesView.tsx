@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export const TemplatesView = () => {
   const { toast } = useToast();
-  const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const [selectedTemplate, setSelectedTemplate] = useState("minimal");
   const navigate = useNavigate();
 
   const templates = [
@@ -54,6 +54,15 @@ export const TemplatesView = () => {
     });
   };
 
+  const handleCardClick = (templateId: string) => {
+    // Navigate to preview page when card is clicked
+    if (templateId === "minimal") {
+      navigate("/index");
+    } else {
+      navigate(`/templates/${templateId}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -66,7 +75,7 @@ export const TemplatesView = () => {
           <Card
             key={template.id}
             className={`hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedTemplate === template.id ? "ring-2 ring-primary" : ""}`}
-            onClick={() => navigate(`/inde/${template.id}`)}
+            onClick={() => handleCardClick(template.id)}
           >
             <CardHeader className="p-0">
               <div className="relative">
@@ -104,7 +113,11 @@ export const TemplatesView = () => {
                     className="flex-1"
                     onClick={(e) => {
                       e.stopPropagation(); // prevent parent card click
-                      navigate(template.id === "minimal" ? "/index" : `/templates/${template.id}`);
+                      if (template.id === "minimal") {
+                        navigate("/index");
+                      } else {
+                        navigate(`/templates/${template.id}`);
+                      }
                     }}
                   >
                     <Eye className="w-4 h-4 mr-2" />
@@ -147,4 +160,4 @@ export const TemplatesView = () => {
       </Card>
     </div>
   );
-}; 
+};

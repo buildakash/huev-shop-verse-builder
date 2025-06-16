@@ -68,7 +68,7 @@ export const ProductsView: React.FC = () => {
                 <div>
                   <h3 className="font-semibold">{product.name}</h3>
                   <p className="text-2xl font-bold text-primary">
-                    ${product.price}
+                  ₹{product.price}
                   </p>
                   <div className="flex items-center space-x-2 mt-1">
                     <Badge
@@ -84,11 +84,11 @@ export const ProductsView: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Link to={`/product/${product.id}`}>
+                {/* <Link to={`/product/${product.id}`}>
                   <Button variant="ghost" size="icon">
                     <Eye className="w-4 h-4" />
                   </Button>
-                </Link>
+                </Link> */}
                 <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
                   <Edit className="w-4 h-4" />
                 </Button>

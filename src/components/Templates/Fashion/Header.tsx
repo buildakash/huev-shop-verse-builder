@@ -1,4 +1,3 @@
-
 // src/components/Templates/Fashion/Header.tsx
 
 import React, { useState, useRef } from "react";
@@ -61,7 +60,7 @@ const Header: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex-shrink-0 flex items-center space-x-2">
+            <div className="flex-shrink-0 flex items-center space-x-2 group">
               {editingLogo ? (
                 <>
                   <input
@@ -89,6 +88,7 @@ const Header: React.FC = () => {
                       setTimeout(() => inputRef.current?.focus(), 0);
                     }}
                     aria-label="Edit logo"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
                     <Pencil className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer" />
                   </button>
@@ -99,7 +99,7 @@ const Header: React.FC = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-8">
               {navItems.map((item, idx) => (
-                <div key={idx} className="relative flex items-center">
+                <div key={idx} className="relative flex items-center group">
                   {editingNavIndex === idx ? (
                     <>
                       <input
@@ -136,8 +136,9 @@ const Header: React.FC = () => {
                           setTimeout(() => inputRef.current?.focus(), 0);
                         }}
                         aria-label="Edit nav item"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1"
                       >
-                        <Pencil className="w-4 h-4 text-gray-400 hover:text-gray-600 ml-1 cursor-pointer" />
+                        <Pencil className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
                       </button>
                     </>
                   )}
@@ -199,7 +200,7 @@ const Header: React.FC = () => {
           {isMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-4 space-y-4">
               {navItems.map((item, idx) => (
-                <div key={idx} className="flex items-center space-x-2">
+                <div key={idx} className="flex items-center space-x-2 group">
                   <a href={item.href} className="text-gray-700 hover:text-gray-900">
                     {item.label}
                   </a>
@@ -210,6 +211,7 @@ const Header: React.FC = () => {
                       setTimeout(() => inputRef.current?.focus(), 0);
                     }}
                     aria-label="Edit nav item"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
                     <Pencil className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
                   </button>
