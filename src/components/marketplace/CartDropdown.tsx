@@ -1,9 +1,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useCart } from "@/context/CartContext"
+import { useCart } from "@/context/CartContext";
+import { usePurchaseContext } from "@/hooks/usePurchaseContext";
 
 export interface CartItem {
   id: string;
@@ -11,6 +12,8 @@ export interface CartItem {
   qty: number;
   price: number;
   image: string;
+  purchaseContext: 'marketplace' | 'store';
+  storeId?: string;
 }
 
 interface CartDropdownProps {
@@ -19,8 +22,13 @@ interface CartDropdownProps {
 
 export const CartDropdown = ({ onClose }: CartDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartItems } = useCart();  // ← real cart data
-  const items = cartItems;
+  const { getMarketplaceItems, getStoreItems } = useCart();
+  const { purchaseContext, storeId, storeName } = usePurchaseContext();
+  
+  // Get items based on current context
+  const items = purchaseContext === 'marketplace' 
+    ? getMarketplaceItems() 
+    : getStoreItems(storeId);
 
   const totalQty = items.reduce((sum, it) => sum + it.qty, 0);
   const totalPrice = items.reduce((sum, it) => sum + it.qty * it.price, 0);
@@ -28,6 +36,12 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
   const handleClose = () => {
     setIsOpen(false);
     if (onClose) onClose();
+  };
+
+  const getCartTitle = () => {
+    return purchaseContext === 'marketplace' 
+      ? 'PocketAngadi Cart' 
+      : `${storeName} Cart`;
   };
 
   return (
@@ -38,7 +52,7 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
         onClick={() => setIsOpen((o) => !o)}
         className="relative"
       >
-        🛒
+        <ShoppingBag className="w-4 h-4" />
         {totalQty > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
             {totalQty}
@@ -49,7 +63,7 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50">
           <div className="p-4 border-b flex justify-between items-center">
-            <h4 className="font-semibold">Your Cart</h4>
+            <h4 className="font-semibold">{getCartTitle()}</h4>
             <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
               <X size={16} />
             </button>
@@ -60,7 +74,7 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
               <p className="text-sm text-gray-500">Your cart is empty.</p>
             ) : (
               items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-3">
+                <div key={`${item.id}-${item.purchaseContext}-${item.storeId}`} className="flex items-center space-x-3">
                   <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium line-clamp-2">{item.name}</p>
@@ -86,7 +100,7 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
                     View Cart
                   </Button>
                 </Link>
-                <Link to="/checkout" className="flex-1">
+                <Link to="/iheckout" className="flex-1">
                   <Button className="w-full">Checkout</Button>
                 </Link>
               </div>

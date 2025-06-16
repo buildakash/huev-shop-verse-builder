@@ -14,6 +14,8 @@ import React, {
     image: string;
     qty: number;
     quantity: number; // Add this for compatibility
+    purchaseContext: 'marketplace' | 'store'; // New field to track context
+    storeId?: string; // Optional store identifier
   }
   
   interface CartContextType {
@@ -23,6 +25,10 @@ import React, {
     removeFromCart: (id: string) => void;
     updateQuantity: (id: string, quantity: number) => void;
     getTotalPrice: () => number;
+    getMarketplaceItems: () => CartItem[];
+    getStoreItems: (storeId?: string) => CartItem[];
+    clearCart: () => void;
+    clearStoreCart: (storeId?: string) => void;
   }
   
   const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -38,10 +44,16 @@ import React, {
   
     const addToCart = (item: CartItem) => {
       setCartItems((prev) => {
-        const existing = prev.find((ci) => ci.id === item.id);
+        const existing = prev.find((ci) => 
+          ci.id === item.id && 
+          ci.purchaseContext === item.purchaseContext &&
+          ci.storeId === item.storeId
+        );
         if (existing) {
           return prev.map((ci) =>
-            ci.id === item.id ? { 
+            ci.id === item.id && 
+            ci.purchaseContext === item.purchaseContext &&
+            ci.storeId === item.storeId ? { 
               ...ci, 
               qty: ci.qty + item.qty,
               quantity: ci.qty + item.qty 
@@ -71,6 +83,30 @@ import React, {
     const getTotalPrice = () => {
       return cartItems.reduce((total, item) => total + (item.price * item.qty), 0);
     };
+
+    const getMarketplaceItems = () => {
+      return cartItems.filter(item => item.purchaseContext === 'marketplace');
+    };
+
+    const getStoreItems = (storeId?: string) => {
+      return cartItems.filter(item => 
+        item.purchaseContext === 'store' && 
+        (!storeId || item.storeId === storeId)
+      );
+    };
+
+    const clearCart = () => {
+      setCartItems([]);
+    };
+
+    const clearStoreCart = (storeId?: string) => {
+      setCartItems(prev => 
+        prev.filter(item => 
+          !(item.purchaseContext === 'store' && 
+            (!storeId || item.storeId === storeId))
+        )
+      );
+    };
   
     return (
       <CartContext.Provider value={{ 
@@ -79,7 +115,11 @@ import React, {
         addToCart, 
         removeFromCart,
         updateQuantity,
-        getTotalPrice
+        getTotalPrice,
+        getMarketplaceItems,
+        getStoreItems,
+        clearCart,
+        clearStoreCart
       }}>
         {children}
       </CartContext.Provider>

@@ -1,5 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { ShoppingCart, Heart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { usePurchaseContext } from "@/hooks/usePurchaseContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   id: string;
@@ -11,6 +15,35 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ id, name, price, originalPrice, image, category }: ProductCardProps) => {
+  const { addToCart } = useCart();
+  const { purchaseContext, storeId, storeName } = usePurchaseContext();
+  const { toast } = useToast();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addToCart({
+      id,
+      name,
+      price,
+      image,
+      qty: 1,
+      quantity: 1,
+      purchaseContext: purchaseContext,
+      storeId: storeId,
+    });
+
+    const contextMessage = purchaseContext === 'marketplace' 
+      ? 'Added to PocketAngadi cart' 
+      : `Added to ${storeName} cart`;
+    
+    toast({
+      title: contextMessage,
+      description: `${name} added to your cart.`,
+    });
+  };
+
   return (
     <div className="product-card group bg-white">
       <div className="relative overflow-hidden">
@@ -26,7 +59,10 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
           <button className="bg-white p-1.5 sm:p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors">
             <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
-          <button className="bg-white p-1.5 sm:p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors">
+          <button 
+            onClick={handleAddToCart}
+            className="bg-white p-1.5 sm:p-2 rounded-full shadow-md hover:bg-gray-50 transition-colors"
+          >
             <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
           </button>
         </div>
@@ -57,7 +93,6 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
       </div>
     </div>
   );
-  
 };
 
 export default ProductCard;

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,14 @@ import { ArrowLeft, Star, ShoppingCart, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/context/ProductContext";
 import { useCart } from "@/context/CartContext";
+import { usePurchaseContext } from "@/hooks/usePurchaseContext";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const { addToCart: addItemToCart } = useCart()
+  const { addToCart: addItemToCart } = useCart();
   const { products } = useProducts();
+  const { purchaseContext, storeId, storeName } = usePurchaseContext();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
@@ -35,17 +38,23 @@ const ProductDetail = () => {
   const features = product.features || [];
 
   const handleAddToCart = () => {
-    toast({ /* … */ });
     addItemToCart({
       id: product.id,
       name: product.name,
       price: product.price,
       image: images[selectedImage],
       qty: quantity,
-      quantity: quantity, // Add the missing quantity property
+      quantity: quantity,
+      purchaseContext: purchaseContext,
+      storeId: storeId,
     });
+    
+    const contextMessage = purchaseContext === 'marketplace' 
+      ? 'Added to PocketAngadi cart' 
+      : `Added to ${storeName} cart`;
+    
     toast({
-      title: "Added to cart",
+      title: contextMessage,
       description: `${quantity} x ${product.name} added to your cart.`,
     });
   };
@@ -55,7 +64,20 @@ const ProductDetail = () => {
       title: "Added to wishlist",
       description: "Product saved to your wishlist.",
     });
+  };
 
+  const getBackLink = () => {
+    if (purchaseContext === 'store') {
+      return `/live/${storeId}`;
+    }
+    return "/marketplace";
+  };
+
+  const getBackText = () => {
+    if (purchaseContext === 'store') {
+      return `Back to ${storeName}`;
+    }
+    return "Back to Marketplace";
   };
 
   return (
@@ -64,24 +86,33 @@ const ProductDetail = () => {
       <header className="border-b border-border/40 backdrop-blur-lg bg-background/80 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <Link
-            to="/marketplace"
+            to={getBackLink()}
             className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Marketplace</span>
+            <span>{getBackText()}</span>
           </Link>
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">
-                H
+                {purchaseContext === 'store' ? storeName.charAt(0).toUpperCase() : 'H'}
               </span>
             </div>
-            <span className="font-bold">Huev</span>
+            <span className="font-bold">
+              {purchaseContext === 'store' ? storeName : 'Huev'}
+            </span>
           </Link>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Purchase Context Indicator */}
+        <div className="mb-4">
+          <Badge variant={purchaseContext === 'marketplace' ? "default" : "secondary"} className="mb-2">
+            {purchaseContext === 'marketplace' ? '🛒 PocketAngadi Marketplace' : `🏪 ${storeName} Official Store`}
+          </Badge>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Product Images */}
           <div className="space-y-4">
@@ -215,7 +246,9 @@ const ProductDetail = () => {
                   className="flex-1 flex items-center space-x-2"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>Add to Cart</span>
+                  <span>
+                    {purchaseContext === 'marketplace' ? 'Add to Cart' : `Add to ${storeName} Cart`}
+                  </span>
                 </Button>
                 <Button onClick={addToWishlist} variant="outline" size="icon">
                   <Heart className="w-4 h-4" />
@@ -236,9 +269,6 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
-
-        {/* (Optional) Reviews Section */}
-        {/* You can make this dynamic later */}
       </div>
     </div>
   );
