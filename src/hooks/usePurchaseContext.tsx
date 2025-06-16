@@ -22,6 +22,11 @@ export const usePurchaseContext = () => {
       return 'store';
     }
 
+    // For product detail pages accessed from marketplace, default to marketplace
+    if (location.pathname.startsWith('/product/')) {
+      return 'marketplace';
+    }
+
     // Default fallback based on current website context
     return currentWebsite ? 'store' : 'marketplace';
   };

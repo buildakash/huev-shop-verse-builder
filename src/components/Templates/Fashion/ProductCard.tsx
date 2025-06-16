@@ -23,6 +23,7 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
     e.preventDefault();
     e.stopPropagation();
     
+    // For store websites, ALWAYS add to STORE cart with the specific storeId
     addToCart({
       id,
       name,
@@ -30,17 +31,13 @@ const ProductCard = ({ id, name, price, originalPrice, image, category }: Produc
       image,
       qty: 1,
       quantity: 1,
-      purchaseContext: purchaseContext,
-      storeId: storeId,
+      purchaseContext: 'store', // ALWAYS store for store website purchases
+      storeId: storeId, // Specific store ID
     });
 
-    const contextMessage = purchaseContext === 'marketplace' 
-      ? 'Added to PocketAngadi cart' 
-      : `Added to ${storeName} cart`;
-    
     toast({
-      title: contextMessage,
-      description: `${name} added to your cart.`,
+      title: `Added to ${storeName} cart`,
+      description: `${name} added to your store cart.`,
     });
   };
 

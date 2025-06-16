@@ -19,10 +19,9 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  // 1️⃣ Find the real product by id
+  // Find the real product by id
   const product = products.find((p) => p.id === id);
 
-  // 2️⃣ If not found, you can navigate back or show a message
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,20 +33,23 @@ const ProductDetail = () => {
     );
   }
 
-  const images = product.images || [product.image]; // support old single-image shape
+  const images = product.images || [product.image];
   const features = product.features || [];
 
   const handleAddToCart = () => {
-    addItemToCart({
+    // Context-based cart addition
+    const cartItem = {
       id: product.id,
       name: product.name,
       price: product.price,
       image: images[selectedImage],
       qty: quantity,
       quantity: quantity,
-      purchaseContext: purchaseContext,
-      storeId: storeId,
-    });
+      purchaseContext: purchaseContext, // Use current context
+      storeId: purchaseContext === 'store' ? storeId : undefined, // Only set storeId for store context
+    };
+
+    addItemToCart(cartItem);
     
     const contextMessage = purchaseContext === 'marketplace' 
       ? 'Added to PocketAngadi cart' 
@@ -80,6 +82,13 @@ const ProductDetail = () => {
     return "Back to Marketplace";
   };
 
+  const getCartButtonText = () => {
+    if (purchaseContext === 'marketplace') {
+      return 'Add to PocketAngadi Cart';
+    }
+    return `Add to ${storeName} Cart`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -95,11 +104,11 @@ const ProductDetail = () => {
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-6 h-6 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">
-                {purchaseContext === 'store' ? storeName.charAt(0).toUpperCase() : 'H'}
+                {purchaseContext === 'store' ? storeName.charAt(0).toUpperCase() : 'P'}
               </span>
             </div>
             <span className="font-bold">
-              {purchaseContext === 'store' ? storeName : 'Huev'}
+              {purchaseContext === 'store' ? storeName : 'PocketAngadi'}
             </span>
           </Link>
         </div>
@@ -246,9 +255,7 @@ const ProductDetail = () => {
                   className="flex-1 flex items-center space-x-2"
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>
-                    {purchaseContext === 'marketplace' ? 'Add to Cart' : `Add to ${storeName} Cart`}
-                  </span>
+                  <span>{getCartButtonText()}</span>
                 </Button>
                 <Button onClick={addToWishlist} variant="outline" size="icon">
                   <Heart className="w-4 h-4" />

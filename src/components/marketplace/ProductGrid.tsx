@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProducts } from "@/context/ProductContext";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductGridProps {
   searchQuery: string;
@@ -16,6 +18,8 @@ interface ProductGridProps {
 export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const { products } = useProducts(); 
+  const { addToCart } = useCart();
+  const { toast } = useToast();
 
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -57,6 +61,28 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
     );
   };
 
+  const handleAddToCart = (product: any, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Always add to MARKETPLACE cart, regardless of which store the product is from
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      qty: 1,
+      quantity: 1,
+      purchaseContext: 'marketplace', // ALWAYS marketplace for marketplace purchases
+      storeId: undefined, // No store ID for marketplace purchases
+    });
+
+    toast({
+      title: 'Added to PocketAngadi Cart',
+      description: `${product.name} added to your marketplace cart.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Results Header */}
@@ -94,6 +120,16 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
+                
+                {/* Add to Cart Button - Marketplace Context */}
+                <Button
+                  size="icon"
+                  className="absolute top-2 left-2 bg-primary hover:bg-primary/90"
+                  onClick={(e) => handleAddToCart(product, e)}
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                </Button>
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -105,7 +141,7 @@ export const ProductGrid = ({ searchQuery, filters }: ProductGridProps) => {
                   />
                 </Button>
                 {product.originalPrice && product.originalPrice > product.price && (
-                  <Badge className="absolute top-2 left-2" variant="destructive">
+                  <Badge className="absolute bottom-2 left-2" variant="destructive">
                     {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
                   </Badge>
                 )}
