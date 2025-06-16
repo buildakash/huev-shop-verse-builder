@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Header from "@/components/Templates/Fashion/Header";
 import Footer from "@/components/Templates/Fashion/Footer";
@@ -7,7 +8,7 @@ import { Filter, Grid, List } from "lucide-react";
 import { WebsiteProvider } from "@/context/WebsiteContext";
 
 const Products = () => {
-  const [viewMode, setViewMode<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
 
@@ -232,8 +233,12 @@ const Products = () => {
                 {filteredProducts.map(product => (
                   <ProductCard
                     key={product.id}
-                    product={product}
-                    viewMode={viewMode}
+                    id={product.id.toString()}
+                    name={product.name}
+                    price={product.price}
+                    originalPrice={product.originalPrice}
+                    image={product.image}
+                    category={product.category}
                   />
                 ))}
               </div>
