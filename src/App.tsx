@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,7 @@ import LiveWebsite from "./pages/LiveWebsite";
 import { ProductProvider } from "@/context/ProductContext";
 import { CartProvider } from "@/context/CartContext";
 import { WebsiteProvider } from "@/context/WebsiteContext";
+import { OrdersProvider } from "@/context/OrdersContext";
 
 const queryClient = new QueryClient();
 
@@ -26,26 +26,28 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <WebsiteProvider>
-          <CartProvider>
-            <ProductProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/live/:websiteName" element={<LiveWebsite />} />
-                <Route path="*" element={<NotFound />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/iheckout" element={<Checkout />} />
-                <Route path="/index" element={<IndexF />} />
-                <Route path="/NotFound" element={<NotFound />} />
-                <Route path="/productDetail" element={<ProductDetail />} />
-                <Route path="/product" element={<Products />} />
-              </Routes>
-            </ProductProvider>
-          </CartProvider>
-        </WebsiteProvider>
+        <OrdersProvider>
+          <WebsiteProvider>
+            <CartProvider>
+              <ProductProvider>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/live/:websiteName" element={<LiveWebsite />} />
+                  <Route path="*" element={<NotFound />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/iheckout" element={<Checkout />} />
+                  <Route path="/index" element={<IndexF />} />
+                  <Route path="/NotFound" element={<NotFound />} />
+                  <Route path="/productDetail" element={<ProductDetail />} />
+                  <Route path="/product" element={<Products />} />
+                </Routes>
+              </ProductProvider>
+            </CartProvider>
+          </WebsiteProvider>
+        </OrdersProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

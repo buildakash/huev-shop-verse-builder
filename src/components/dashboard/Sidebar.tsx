@@ -23,7 +23,7 @@ interface SidebarProps {
   setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export const Sidebar = ({ activeView, setActiveView, isCollapsed, setIsCollapsed }: SidebarProps) => {
+export const eSidebar = ({ activeView, setActiveView, isCollapsed, setIsCollapsed }: SidebarProps) => {
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   const menuItems = [

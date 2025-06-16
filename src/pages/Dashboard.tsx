@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { eSidebar as Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ProductsView } from "@/components/dashboard/ProductsView";
 import { AnalyticsView } from "@/components/dashboard/AnalyticsView";

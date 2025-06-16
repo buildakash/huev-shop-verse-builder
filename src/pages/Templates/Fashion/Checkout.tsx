@@ -28,6 +28,7 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useOrders } from "@/context/OrdersContext";
 
 // Marketplace wrappers
 import { MarketplaceHeader } from "@/components/marketplace/MarketplaceHeader";
@@ -40,10 +41,11 @@ const Checkout: React.FC = () => {
     getStoreItems,
     getMarketplaceTotalPrice,
     getStoreTotalPrice,
-    clearCart,               // ← clearCart action
+    clearCart,
   } = useCart();
   const { products, updateProduct } = useProducts();
   const navigate = useNavigate();
+  const { addOrder } = useOrders();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,20 +74,19 @@ const Checkout: React.FC = () => {
       ? getMarketplaceTotalPrice()
       : getStoreTotalPrice(storeId);
 
-  const continueTo = purchaseContext === "marketplace"
-    ? "/marketplace"
-    : `/live/${storeId}`;
+  const continueTo =
+    purchaseContext === "marketplace" ? "/marketplace" : `/live/${storeId}`;
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // 1) Decrement stock for each item
-    items.forEach(item => {
-      const prod = products.find(p => p.id === item.id);
+    items.forEach((item) => {
+      const prod = products.find((p) => p.id === item.id);
       if (prod) {
         const newStock = Math.max(0, prod.stock - item.quantity);
         updateProduct({
@@ -95,7 +96,13 @@ const Checkout: React.FC = () => {
         });
       }
     });
-
+    addOrder({
+      id: `ORD-${Date.now()}`,
+      customer: `${formData.firstName} ${formData.lastName}`,
+      email: formData.email,
+      items,
+      total: totalPrice,
+    });
     // 2) Clear the cart so header count resets
     clearCart(purchaseContext);
 
@@ -111,21 +118,25 @@ const Checkout: React.FC = () => {
         {/* BILLING FORM */}
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle>Contact Information</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Contact Information</CardTitle>
+            </CardHeader>
             <CardContent>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={e => handleInputChange("email", e.target.value)}
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 required
               />
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>Shipping Address</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Shipping Address</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -133,7 +144,9 @@ const Checkout: React.FC = () => {
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={e => handleInputChange("firstName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("firstName", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -142,7 +155,9 @@ const Checkout: React.FC = () => {
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={e => handleInputChange("lastName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("lastName", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -151,7 +166,7 @@ const Checkout: React.FC = () => {
               <Input
                 id="address"
                 value={formData.address}
-                onChange={e => handleInputChange("address", e.target.value)}
+                onChange={(e) => handleInputChange("address", e.target.value)}
                 required
               />
               <div className="grid grid-cols-3 gap-4">
@@ -160,7 +175,7 @@ const Checkout: React.FC = () => {
                   <Input
                     id="city"
                     value={formData.city}
-                    onChange={e => handleInputChange("city", e.target.value)}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
                     required
                   />
                 </div>
@@ -168,9 +183,11 @@ const Checkout: React.FC = () => {
                   <Label htmlFor="state">State</Label>
                   <Select
                     value={formData.state}
-                    onValueChange={v => handleInputChange("state", v)}
+                    onValueChange={(v) => handleInputChange("state", v)}
                   >
-                    <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select state" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ca">California</SelectItem>
                       <SelectItem value="ny">New York</SelectItem>
@@ -183,7 +200,9 @@ const Checkout: React.FC = () => {
                   <Input
                     id="zipCode"
                     value={formData.zipCode}
-                    onChange={e => handleInputChange("zipCode", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("zipCode", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -192,14 +211,18 @@ const Checkout: React.FC = () => {
           </Card>
 
           <Card>
-            <CardHeader><CardTitle>Payment Information</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Payment Information</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-4">
               <Label htmlFor="cardNumber">Card Number</Label>
               <Input
                 id="cardNumber"
                 placeholder="1234 5678 9012 3456"
                 value={formData.cardNumber}
-                onChange={e => handleInputChange("cardNumber", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("cardNumber", e.target.value)
+                }
                 required
               />
               <div className="grid grid-cols-3 gap-4">
@@ -209,7 +232,9 @@ const Checkout: React.FC = () => {
                     id="expiryDate"
                     placeholder="MM/YY"
                     value={formData.expiryDate}
-                    onChange={e => handleInputChange("expiryDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("expiryDate", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -219,7 +244,7 @@ const Checkout: React.FC = () => {
                     id="cvv"
                     placeholder="123"
                     value={formData.cvv}
-                    onChange={e => handleInputChange("cvv", e.target.value)}
+                    onChange={(e) => handleInputChange("cvv", e.target.value)}
                     required
                   />
                 </div>
@@ -228,7 +253,9 @@ const Checkout: React.FC = () => {
               <Input
                 id="nameOnCard"
                 value={formData.nameOnCard}
-                onChange={e => handleInputChange("nameOnCard", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("nameOnCard", e.target.value)
+                }
                 required
               />
             </CardContent>
@@ -238,10 +265,12 @@ const Checkout: React.FC = () => {
         {/* ORDER SUMMARY */}
         <div>
           <Card className="sticky top-4">
-            <CardHeader><CardTitle>Order Summary</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
             <CardContent>
               <div className="space-y-4 mb-6">
-                {items.map(item => (
+                {items.map((item) => (
                   <div
                     key={`${item.id}-${item.purchaseContext}-${item.storeId}`}
                     className="flex justify-between items-center"
@@ -254,7 +283,9 @@ const Checkout: React.FC = () => {
                       />
                       <div>
                         <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                        <p className="text-sm text-gray-600">
+                          Qty: {item.quantity}
+                        </p>
                       </div>
                     </div>
                     <span>${(item.price * item.quantity).toFixed(2)}</span>
@@ -278,13 +309,18 @@ const Checkout: React.FC = () => {
                 <hr />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}</span>
+                  <span>
+                    ${(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}
+                  </span>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <Button type="submit" className="w
-                -full">
+                <Button
+                  type="submit"
+                  className="w
+                -full"
+                >
                   Complete Order
                 </Button>
               </form>
