@@ -97,7 +97,11 @@ const Checkout: React.FC = () => {
     });
 
     // 2) Clear the cart so header count resets
-    clearCart(purchaseContext);
+    if (purchaseContext === "marketplace") {
+      clearCart();
+    } else {
+      clearCart();
+    }
 
     // 3) Open confirmation dialog
     setDialogOpen(true);
@@ -257,7 +261,7 @@ const Checkout: React.FC = () => {
                         <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -265,26 +269,25 @@ const Checkout: React.FC = () => {
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span>₹{totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>$10.00</span>
+                  <span>₹10.00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax</span>
-                  <span>${(totalPrice * 0.1).toFixed(2)}</span>
+                  <span>₹{(totalPrice * 0.1).toFixed(2)}</span>
                 </div>
                 <hr />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}</span>
+                  <span>₹{(totalPrice + 10 + totalPrice * 0.1).toFixed(2)}</span>
                 </div>
               </div>
 
               <form onSubmit={handleSubmit}>
-                <Button type="submit" className="w
-                -full">
+                <Button type="submit" className="w-full">
                   Complete Order
                 </Button>
               </form>
