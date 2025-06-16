@@ -22,13 +22,16 @@ import React, {
     cartItems: CartItem[];
     items: CartItem[]; // Add alias for compatibility
     addToCart: (item: CartItem) => void;
-    removeFromCart: (id: string) => void;
-    updateQuantity: (id: string, quantity: number) => void;
+    removeFromCart: (id: string, purchaseContext: 'marketplace' | 'store', storeId?: string) => void;
+    updateQuantity: (id: string, quantity: number, purchaseContext: 'marketplace' | 'store', storeId?: string) => void;
     getTotalPrice: () => number;
     getMarketplaceItems: () => CartItem[];
     getStoreItems: (storeId?: string) => CartItem[];
     clearCart: () => void;
     clearStoreCart: (storeId?: string) => void;
+    clearMarketplaceCart: () => void;
+    getMarketplaceTotalPrice: () => number;
+    getStoreTotalPrice: (storeId?: string) => number;
   }
   
   const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -64,18 +67,28 @@ import React, {
       });
     };
   
-    const removeFromCart = (id: string) => {
-      setCartItems((prev) => prev.filter((ci) => ci.id !== id));
+    const removeFromCart = (id: string, purchaseContext: 'marketplace' | 'store', storeId?: string) => {
+      setCartItems((prev) => prev.filter((ci) => !(
+        ci.id === id && 
+        ci.purchaseContext === purchaseContext &&
+        ci.storeId === storeId
+      )));
     };
 
-    const updateQuantity = (id: string, quantity: number) => {
+    const updateQuantity = (id: string, quantity: number, purchaseContext: 'marketplace' | 'store', storeId?: string) => {
       if (quantity <= 0) {
-        removeFromCart(id);
+        removeFromCart(id, purchaseContext, storeId);
         return;
       }
       setCartItems((prev) =>
         prev.map((ci) =>
-          ci.id === id ? { ...ci, qty: quantity, quantity: quantity } : ci
+          ci.id === id && 
+          ci.purchaseContext === purchaseContext &&
+          ci.storeId === storeId ? { 
+            ...ci, 
+            qty: quantity, 
+            quantity: quantity 
+          } : ci
         )
       );
     };
@@ -107,6 +120,20 @@ import React, {
         )
       );
     };
+
+    const clearMarketplaceCart = () => {
+      setCartItems(prev => 
+        prev.filter(item => item.purchaseContext !== 'marketplace')
+      );
+    };
+
+    const getMarketplaceTotalPrice = () => {
+      return getMarketplaceItems().reduce((total, item) => total + (item.price * item.qty), 0);
+    };
+
+    const getStoreTotalPrice = (storeId?: string) => {
+      return getStoreItems(storeId).reduce((total, item) => total + (item.price * item.qty), 0);
+    };
   
     return (
       <CartContext.Provider value={{ 
@@ -119,7 +146,10 @@ import React, {
         getMarketplaceItems,
         getStoreItems,
         clearCart,
-        clearStoreCart
+        clearStoreCart,
+        clearMarketplaceCart,
+        getMarketplaceTotalPrice,
+        getStoreTotalPrice
       }}>
         {children}
       </CartContext.Provider>

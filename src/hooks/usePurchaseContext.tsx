@@ -17,6 +17,11 @@ export const usePurchaseContext = () => {
       return 'marketplace';
     }
 
+    // If we're in cart or checkout and have a current website, it's a store purchase
+    if ((location.pathname === '/cart' || location.pathname === '/iheckout') && currentWebsite) {
+      return 'store';
+    }
+
     // Default fallback based on current website context
     return currentWebsite ? 'store' : 'marketplace';
   };

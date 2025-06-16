@@ -22,7 +22,7 @@ interface CartDropdownProps {
 
 export const CartDropdown = ({ onClose }: CartDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { getMarketplaceItems, getStoreItems } = useCart();
+  const { getMarketplaceItems, getStoreItems, removeFromCart, getMarketplaceTotalPrice, getStoreTotalPrice } = useCart();
   const { purchaseContext, storeId, storeName } = usePurchaseContext();
   
   // Get items based on current context
@@ -31,7 +31,9 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
     : getStoreItems(storeId);
 
   const totalQty = items.reduce((sum, it) => sum + it.qty, 0);
-  const totalPrice = items.reduce((sum, it) => sum + it.qty * it.price, 0);
+  const totalPrice = purchaseContext === 'marketplace' 
+    ? getMarketplaceTotalPrice() 
+    : getStoreTotalPrice(storeId);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -42,6 +44,10 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
     return purchaseContext === 'marketplace' 
       ? 'PocketAngadi Cart' 
       : `${storeName} Cart`;
+  };
+
+  const handleRemoveItem = (item: CartItem) => {
+    removeFromCart(item.id, item.purchaseContext, item.storeId);
   };
 
   return (
@@ -82,6 +88,12 @@ export const CartDropdown = ({ onClose }: CartDropdownProps) => {
                       {item.qty} × ${item.price.toFixed(2)}
                     </p>
                   </div>
+                  <button 
+                    onClick={() => handleRemoveItem(item)}
+                    className="text-red-500 hover:text-red-700 text-xs"
+                  >
+                    <X size={14} />
+                  </button>
                   <p className="font-semibold">${(item.qty * item.price).toFixed(2)}</p>
                 </div>
               ))
