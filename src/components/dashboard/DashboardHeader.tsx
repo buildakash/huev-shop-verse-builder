@@ -48,7 +48,7 @@ export const DashboardHeader = () => {
                 )}
               </div>
               {isLiveWebsiteActive && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite] -skew-x-12"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer -skew-x-12"></div>
               )}
             </Button>
           </div>
@@ -76,12 +76,17 @@ export const DashboardHeader = () => {
         onOpenChange={setShowSaveModal} 
       />
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%) skewX(-12deg); }
-          100% { transform: translateX(200%) skewX(-12deg); }
-        }
-      `}</style>
+      <style>
+        {`
+          @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-12deg); }
+            100% { transform: translateX(200%) skewX(-12deg); }
+          }
+          .animate-shimmer {
+            animation: shimmer 2s infinite;
+          }
+        `}
+      </style>
     </>
   );
 };
