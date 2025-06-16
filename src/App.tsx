@@ -8,6 +8,7 @@ import IndexF from "./pages/Templates/Fashion/IndexF";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import ProductDetail from "./pages/ProductDetail";
+import ProductDetails from "./pages/Templates/Fashion/ProductDetail";
 import NotFound from "./pages/NotFound";
 import Cart from "./pages/Templates/Fashion/Cart";
 import Checkout from "./pages/Templates/Fashion/Checkout";
@@ -17,6 +18,7 @@ import { ProductProvider } from "@/context/ProductContext";
 import { CartProvider } from "@/context/CartContext";
 import { WebsiteProvider } from "@/context/WebsiteContext";
 import { OrdersProvider } from "@/context/OrdersContext";
+import StoreCart from "./pages/Templates/Fashion/StoreCart";
 
 const queryClient = new QueryClient();
 
@@ -41,8 +43,10 @@ const App = () => (
                   <Route path="/iheckout" element={<Checkout />} />
                   <Route path="/index" element={<IndexF />} />
                   <Route path="/NotFound" element={<NotFound />} />
-                  <Route path="/productDetail" element={<ProductDetail />} />
+                  <Route path="/productDetails/:id" element={<ProductDetails />} />
                   <Route path="/product" element={<Products />} />
+                  <Route path="/storecart" element={<StoreCart />} />
+
                 </Routes>
               </ProductProvider>
             </CartProvider>

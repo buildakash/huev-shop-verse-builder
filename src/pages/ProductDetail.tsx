@@ -79,8 +79,8 @@ const ProductDetail: React.FC = () => {
     purchaseContext === "store" ? `Back to ${storeName}` : "Back to Marketplace";
   const cartButtonText =
     purchaseContext === "store"
-      ? `Add to ${storeName} Cart`
-      : "Add to Cart";
+      ? `Add to ${storeName}st Cart`
+      : "Add to marCart";
 
   // 5️⃣ Detail content (common)
   const DetailContent = () => (

@@ -1,79 +1,118 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+// src/pages/Templates/Fashion/ProductDetail.tsx
+
+import React, { useState, useMemo, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import Header from "../../../components/Templates/Fashion/Header";
 import Footer from "../../../components/Templates/Fashion/Footer";
-import { Heart, Share2, Truck, Shield, RotateCcw, Star } from "lucide-react";
+import { useProducts } from "@/context/ProductContext";
+import { useCart } from "@/context/CartContext";
+import { usePurchaseContext } from "@/hooks/usePurchaseContext";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Heart,
+  Share2,
+  Truck,
+  Shield,
+  RotateCcw,
+  Star,
+} from "lucide-react";
 
-const ProductDetail = () => {
-  const { id } = useParams();
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("black");
-  const [quantity, setQuantity] = useState(1);
+const ProductDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const { getProductById } = useProducts();
+  const product = getProductById(id!);
+  const { addToCart } = useCart();
+  const { purchaseContext, storeId, storeName } = usePurchaseContext();
+  const { toast } = useToast();
+
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
-  const product = {
-    id: "1",
-    name: "Oversized Blazer",
-    price: 129,
-    originalPrice: 159,
-    description: "A contemporary oversized blazer crafted from premium wool blend. Features a relaxed fit with structured shoulders and elegant draping. Perfect for both professional and casual styling.",
-    images: [
-      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&q=80"
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "black", hex: "#000000" },
-      { name: "navy", hex: "#1e3a8a" },
-      { name: "beige", hex: "#d4b896" }
-    ],
-    rating: 4.8,
-    reviews: 124
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // If no such product, show a friendly 404
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Product not found.</p>
+        <Link
+          to={
+            purchaseContext === "marketplace"
+              ? "/marketplace"
+              : `/live/${storeId}`
+          }
+          className="ml-4 text-primary underline"
+        >
+          Back to Home
+        </Link>
+      </div>
+    );
+  }
+
+  // derive images array always
+  const images = useMemo(
+    () => (product.images && product.images.length ? product.images : [product.image]),
+    [product] 
+  );
+
+  // initialize selections once loaded
+  React.useEffect(() => {
+    if (product.sizes && product.sizes.length) setSelectedSize(product.sizes[0]);
+    if (product.colors && product.colors.length) setSelectedColor(product.colors[0].name);
+  }, [product]);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: images[selectedImage],
+      qty: quantity,
+      quantity,
+      purchaseContext: purchaseContext === "marketplace" ? "marketplace" : "store",
+      storeId: purchaseContext === "marketplace" ? undefined : storeId,
+    });
+    toast({
+      title:
+        purchaseContext === "marketplace"
+          ? "Added to Marketplace cart"
+          : `Added to ${storeName} cart`,
+      description: `${quantity} × ${product.name} added.`,
+    });
   };
 
-  const reviews = [
-    {
-      name: "Sarah M.",
-      rating: 5,
-      comment: "Perfect fit and amazing quality. The fabric feels luxurious.",
-      date: "2 weeks ago"
-    },
-    {
-      name: "Emma L.",
-      rating: 4,
-      comment: "Love the oversized fit! Great for layering.",
-      date: "1 month ago"
-    }
-  ];
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Images */}
+          {/* Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg">
-              <img 
-                src={product.images[selectedImage]}
+            <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+              <img
+                src={images[selectedImage]}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="grid grid-cols-3 gap-4">
-              {product.images.map((image, index) => (
+              {images.map((img, idx) => (
                 <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`aspect-square overflow-hidden rounded-lg border-2 ${
-                    selectedImage === index ? 'border-accent' : 'border-gray-200'
+                  key={idx}
+                  onClick={() => setSelectedImage(idx)}
+                  className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                    selectedImage === idx ? "border-primary" : "border-gray-200"
                   }`}
                 >
-                  <img 
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
+                  <img
+                    src={img}
+                    alt={`${product.name} ${idx + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -81,83 +120,111 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Product Details */}
+          {/* Details */}
           <div className="space-y-6">
+            {/* Title & Rating */}
             <div>
               <h1 className="text-3xl font-light mb-2">{product.name}</h1>
               <div className="flex items-center space-x-4 mb-4">
                 <div className="flex items-center space-x-1">
                   {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-accent fill-current' : 'text-gray-300'}`}
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        product.rating && i < Math.floor(product.rating)
+                          ? "text-primary fill-current"
+                          : "text-gray-300"
+                      }`}
                     />
                   ))}
-                  <span className="text-sm text-gray-600 ml-2">
-                    {product.rating} ({product.reviews} reviews)
-                  </span>
+                  {product.rating != null && product.reviews != null && (
+                    <span className="text-sm text-gray-600 ml-2">
+                      {product.rating} ({product.reviews})
+                    </span>
+                  )}
                 </div>
               </div>
+
+              {/* Price */}
               <div className="flex items-center space-x-3">
-                <span className="text-2xl font-semibold">${product.price}</span>
+                <span className="text-2xl font-semibold">
+                  ₹{product.price}
+                </span>
                 {product.originalPrice && (
-                  <span className="text-lg text-gray-500 line-through">${product.originalPrice}</span>
+                  <span className="text-lg text-gray-500 line-through">
+                    ₹{product.originalPrice}
+                  </span>
                 )}
               </div>
             </div>
 
-            <p className="text-gray-600 leading-relaxed">{product.description}</p>
+            {/* Description */}
+            {product.description && (
+              <p className="text-gray-600 leading-relaxed">
+                {product.description}
+              </p>
+            )}
 
-            {/* Color Selection */}
-            <div>
-              <h3 className="font-medium mb-3">Color: {selectedColor}</h3>
-              <div className="flex space-x-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-8 h-8 rounded-full border-2 ${
-                      selectedColor === color.name ? 'border-accent' : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                  />
-                ))}
+            {/* Color Picker */}
+            {product.colors && (
+              <div>
+                <h3 className="font-medium mb-2">
+                  Color: {selectedColor}
+                </h3>
+                <div className="flex space-x-3">
+                  {product.colors.map((c) => (
+                    <button
+                      key={c.name}
+                      onClick={() => setSelectedColor(c.name)}
+                      className={`w-8 h-8 rounded-full border-2 transition-colors ${
+                        selectedColor === c.name
+                          ? "border-primary"
+                          : "border-gray-300"
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Size Selection */}
-            <div>
-              <h3 className="font-medium mb-3">Size</h3>
-              <div className="grid grid-cols-5 gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-2 px-4 border rounded-md text-center transition-colors ${
-                      selectedSize === size 
-                        ? 'border-accent bg-accent text-white' 
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+            {/* Size Picker */}
+            {product.sizes && (
+              <div>
+                <h3 className="font-medium mb-2">Size</h3>
+                <div className="grid grid-cols-5 gap-2">
+                  {product.sizes.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSize(s)}
+                      className={`py-2 px-4 border rounded-md text-center transition-colors ${
+                        selectedSize === s
+                          ? "border-primary bg-primary text-white"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity */}
             <div>
-              <h3 className="font-medium mb-3">Quantity</h3>
+              <h3 className="font-medium mb-2">Quantity</h3>
               <div className="flex items-center space-x-3">
-                <button 
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                <button
+                  onClick={() =>
+                    setQuantity((q) => Math.max(1, q - 1))
+                  }
                   className="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-50"
                 >
-                  -
+                  –
                 </button>
                 <span className="w-12 text-center">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(quantity + 1)}
+                <button
+                  onClick={() => setQuantity((q) => q + 1)}
                   className="w-10 h-10 border border-gray-300 rounded-md flex items-center justify-center hover:bg-gray-50"
                 >
                   +
@@ -165,62 +232,47 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="space-y-4">
-              <button className="w-full btn-primary py-4 text-lg">
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-primary text-white py-4 text-lg rounded"
+              >
                 Add to Cart
               </button>
               <div className="grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center space-x-2 py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <button className="flex items-center justify-center space-x-2 py-3 border border-gray-300 rounded-md hover:bg-gray-50">
                   <Heart className="h-5 w-5" />
                   <span>Save</span>
                 </button>
-                <button className="flex items-center justify-center space-x-2 py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                <button className="flex items-center justify-center space-x-2 py-3 border border-gray-300 rounded-md hover:bg-gray-50">
                   <Share2 className="h-5 w-5" />
                   <span>Share</span>
                 </button>
               </div>
             </div>
 
-            {/* Features */}
+            {/* Feature Icons */}
             <div className="border-t pt-6 space-y-4">
               <div className="flex items-center space-x-3">
                 <Truck className="h-5 w-5 text-gray-600" />
-                <span className="text-sm">Free shipping on orders over $100</span>
+                <span className="text-sm">
+                  Free shipping on orders over ₹1000
+                </span>
               </div>
               <div className="flex items-center space-x-3">
                 <RotateCcw className="h-5 w-5 text-gray-600" />
-                <span className="text-sm">Free returns within 30 days</span>
+                <span className="text-sm">
+                  Free returns within 30 days
+                </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-gray-600" />
-                <span className="text-sm">2-year warranty included</span>
+                <span className="text-sm">
+                  2-year warranty included
+                </span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Reviews Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-light mb-8">Customer Reviews</h2>
-          <div className="space-y-6">
-            {reviews.map((review, index) => (
-              <div key={index} className="border-b border-gray-200 pb-6">
-                <div className="flex items-center space-x-4 mb-3">
-                  <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`h-4 w-4 ${i < review.rating ? 'text-accent fill-current' : 'text-gray-300'}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="font-medium">{review.name}</span>
-                  <span className="text-sm text-gray-500">{review.date}</span>
-                </div>
-                <p className="text-gray-600">{review.comment}</p>
-              </div>
-            ))}
           </div>
         </div>
       </main>
