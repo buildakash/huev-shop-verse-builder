@@ -42,6 +42,7 @@ const ProductDetail = () => {
       price: product.price,
       image: images[selectedImage],
       qty: quantity,
+      quantity: quantity, // Add the missing quantity property
     });
     toast({
       title: "Added to cart",
