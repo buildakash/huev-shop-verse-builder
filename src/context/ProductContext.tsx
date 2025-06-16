@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import localforage from "localforage";
 
 localforage.config({
-  name: "huev-shop-verse-builder",
+  name: "Pocket Angadi",
   storeName: "products",
 });
 
@@ -24,21 +24,7 @@ export interface Product {
   description?: string;
 }
 
-interface ProductContextType {
-  products: Product[];
-  addProduct: (p: Product) => void;
-  updateProduct: (p: Product) => void;
-  deleteProduct: (id: string) => void;
-}
-
-const ProductContext = createContext<ProductContextType | undefined>(undefined);
-export const useProducts = () => {
-  const ctx = useContext(ProductContext);
-  if (!ctx) throw new Error("useProducts must be used within ProductProvider");
-  return ctx;
-};
-
-// 2️⃣ Your original three products as default
+// 3. Seed exactly the six marketplace defaults here:
 const initialProducts: Product[] = [
   {
     id: "1",
@@ -137,18 +123,15 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     if (products.length) localforage.setItem("products", products);
   }, [products]);
 
-  const addProduct = (p: Product) => {
-    setProducts((prev) => [...prev, p]);
-  };
-  const updateProduct = (p: Product) => {
-    setProducts((prev) => prev.map((x) => (x.id === p.id ? p : x)));
-  };
+  const addProduct = (p: Product) => setProducts(prev => [...prev, p]);
+  const updateProduct = (p: Product) => setProducts(prev => prev.map(x => x.id === p.id ? p : x));
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((x) => x.id !== id));
   };
+  
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct,deleteProduct }}>
       {children}
     </ProductContext.Provider>
   );
