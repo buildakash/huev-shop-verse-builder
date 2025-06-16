@@ -1,3 +1,4 @@
+
 // 1. Import & setup
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import localforage from "localforage";
@@ -16,12 +17,14 @@ export interface Product {
   rating?: number;
   reviews?: number;
   image: string;             // URL or base64
+  images?: string[];         // Multiple images support
   category?: string;
   store?: string;
   freeShipping?: boolean;
   stock?: number;
   status?: "active" | "out_of_stock";
   description?: string;
+  features?: string[];       // Key features list
 }
 
 // 3. Seed exactly the six marketplace defaults here:
@@ -101,7 +104,13 @@ const initialProducts: Product[] = [
 ];
 
 // 4. Context & persistence logic (localForage)
-const ProductContext = createContext<{ products: Product[]; addProduct(p:Product):void; updateProduct(p:Product):void } | undefined>(undefined);
+const ProductContext = createContext<{ 
+  products: Product[]; 
+  addProduct(p:Product):void; 
+  updateProduct(p:Product):void; 
+  deleteProduct(id:string):void;
+} | undefined>(undefined);
+
 export const useProducts = () => {
   const ctx = useContext(ProductContext);
   if (!ctx) throw new Error("useProducts must be used within ProductProvider");
@@ -131,7 +140,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct,deleteProduct }}>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
       {children}
     </ProductContext.Provider>
   );
