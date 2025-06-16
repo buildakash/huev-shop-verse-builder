@@ -1,14 +1,21 @@
+// src/context/ProductContext.tsx
 
-// 1. Import & setup
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import localforage from "localforage";
 
+// configure localforage
 localforage.config({
   name: "Pocket Angadi",
   storeName: "products",
 });
 
-// 2. Define a Product type that covers *all* fields used in admin & marketplace
+// full Product shape
 export interface Product {
   id: string;
   name: string;
@@ -16,18 +23,18 @@ export interface Product {
   originalPrice?: number;
   rating?: number;
   reviews?: number;
-  image: string;             // URL or base64
-  images?: string[];         // Multiple images support
+  image: string;       // single fallback URL/base64
+  images?: string[];   // multiple images
   category?: string;
   store?: string;
   freeShipping?: boolean;
   stock?: number;
   status?: "active" | "out_of_stock";
   description?: string;
-  features?: string[];       // Key features list
+  features?: string[];
 }
 
-// 3. Seed exactly the six marketplace defaults here:
+// seed data – now with both `image` and `images: [image]`
 const initialProducts: Product[] = [
   {
     id: "1",
@@ -36,10 +43,19 @@ const initialProducts: Product[] = [
     originalPrice: 20749,
     rating: 4.8,
     reviews: 127,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    ],
     category: "Electronics",
     store: "AudioTech Pro",
-    freeShipping: true
+    freeShipping: true,
+    stock: 50,
+    status: "active",
+    description:
+      "Crystal-clear audio and superior comfort in a wireless package.",
+    features: ["Noise cancellation", "30-hour battery", "Quick charge"],
   },
   {
     id: "2",
@@ -48,10 +64,18 @@ const initialProducts: Product[] = [
     originalPrice: 33199,
     rating: 4.6,
     reviews: 89,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    ],
     category: "Electronics",
     store: "FitTech",
-    freeShipping: true
+    freeShipping: true,
+    stock: 30,
+    status: "active",
+    description: "Track your fitness metrics in real time, 24/7.",
+    features: ["Heart rate", "GPS", "Water-resistant"],
   },
   {
     id: "3",
@@ -60,10 +84,18 @@ const initialProducts: Product[] = [
     originalPrice: 8299,
     rating: 4.4,
     reviews: 203,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
+    ],
     category: "Electronics",
     store: "SoundWave",
-    freeShipping: false
+    freeShipping: false,
+    stock: 0,
+    status: "out_of_stock",
+    description: "Rich, room-filling sound in a portable form.",
+    features: ["Bluetooth 5.0", "12-hour playtime"],
   },
   {
     id: "4",
@@ -72,10 +104,18 @@ const initialProducts: Product[] = [
     originalPrice: 9960,
     rating: 4.7,
     reviews: 156,
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
+    ],
     category: "Fashion",
     store: "Urban Style",
-    freeShipping: true
+    freeShipping: true,
+    stock: 20,
+    status: "active",
+    description: "Stylish and spacious — perfect for work or weekend.",
+    features: ["Water-resistant", "Laptop compartment"],
   },
   {
     id: "5",
@@ -84,10 +124,18 @@ const initialProducts: Product[] = [
     originalPrice: 16599,
     rating: 4.5,
     reviews: 92,
-    image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+    ],
     category: "Home & Garden",
     store: "Kitchen Essentials",
-    freeShipping: true
+    freeShipping: true,
+    stock: 15,
+    status: "active",
+    description: "Barista-style coffee at home in 3 easy steps.",
+    features: ["Programmable", "Built-in grinder"],
   },
   {
     id: "6",
@@ -96,21 +144,32 @@ const initialProducts: Product[] = [
     originalPrice: 13280,
     rating: 4.6,
     reviews: 234,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+    ],
     category: "Sports",
     store: "SportMax",
-    freeShipping: true
+    freeShipping: true,
+    stock: 40,
+    status: "active",
+    description: "Lightweight comfort for daily training.",
+    features: ["Breathable mesh", "Cushioned sole"],
   },
 ];
 
-// 4. Context & persistence logic (localForage)
-const ProductContext = createContext<{ 
-  products: Product[]; 
-  addProduct(p:Product):void; 
-  updateProduct(p:Product):void; 
-  deleteProduct(id:string):void;
-  getCategories():string[];
-} | undefined>(undefined);
+// build the context type
+interface ProductContextType {
+  products: Product[];
+  addProduct(p: Product): void;
+  updateProduct(p: Product): void;
+  deleteProduct(id: string): void;
+  getCategories(): string[];
+  getProductById(id: string): Product | undefined;
+}
+
+const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const useProducts = () => {
   const ctx = useContext(ProductContext);
@@ -121,31 +180,49 @@ export const useProducts = () => {
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
-  // Load on mount
+  // load from localforage or fallback
   useEffect(() => {
-    localforage.getItem<Product[]>("products").then(stored => {
-      setProducts(stored && stored.length ? stored : initialProducts);
-    }).catch(() => setProducts(initialProducts));
+    localforage
+      .getItem<Product[]>("products")
+      .then((stored) => {
+        setProducts(stored && stored.length ? stored : initialProducts);
+      })
+      .catch(() => setProducts(initialProducts));
   }, []);
 
-  // Save on change
+  // persist on changes
   useEffect(() => {
     if (products.length) localforage.setItem("products", products);
   }, [products]);
 
-  const addProduct = (p: Product) => setProducts(prev => [...prev, p]);
-  const updateProduct = (p: Product) => setProducts(prev => prev.map(x => x.id === p.id ? p : x));
-  const deleteProduct = (id: string) => {
+  const addProduct = (p: Product) =>
+    setProducts((prev) => [...prev, p]);
+
+  const updateProduct = (p: Product) =>
+    setProducts((prev) =>
+      prev.map((x) => (x.id === p.id ? p : x))
+    );
+
+  const deleteProduct = (id: string) =>
     setProducts((prev) => prev.filter((x) => x.id !== id));
-  };
-  
-  const getCategories = () => {
-    const categories = products.map(p => p.category).filter(Boolean);
-    return [...new Set(categories)] as string[];
-  };
+
+  const getCategories = () =>
+    Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+
+  const getProductById = (id: string) =>
+    products.find((p) => p.id === id);
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, getCategories }}>
+    <ProductContext.Provider
+      value={{
+        products,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        getCategories,
+        getProductById,
+      }}
+    >
       {children}
     </ProductContext.Provider>
   );

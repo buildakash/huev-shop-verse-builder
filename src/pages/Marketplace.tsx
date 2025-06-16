@@ -1,6 +1,6 @@
 // src/pages/Marketplace.tsx
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MarketplaceHeader } from "@/components/marketplace/MarketplaceHeader";
 import { HeroSection } from "@/components/marketplace/HeroSection";
 import { CategorySection } from "@/components/marketplace/CategorySection";
@@ -42,6 +42,11 @@ export const Marketplace: React.FC = () => {
   const { addToCart: addItemToCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Scroll to top when view changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
 
   // ③ Handlers
   const handleViewProduct = (id: string) => {
@@ -114,7 +119,7 @@ export const Marketplace: React.FC = () => {
 
             {/* Product Grid */}
             <div className="flex-1 space-y-4">
-              <Button variant="ghost" onClick={() => setView("grid")}>
+              <Button variant="ghost" onClick={() => setView("landing")}>
                 ← Back to Home
               </Button>
               <ProductGrid
