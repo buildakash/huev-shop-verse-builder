@@ -1,40 +1,59 @@
 
-import { useState } from "react";
+import { useState, useRef  } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Product } from "@/context/ProductContext";
 
 interface ProductModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  product?: any;
-}
+     open: boolean;
+     onOpenChange: (open: boolean) => void;
+     product?: Product;
+     /** called with the new or updated product when the form is submitted */
+     onSave: (product: Product) => void;
+   }
 
-export const ProductModal = ({ open, onOpenChange, product }: ProductModalProps) => {
+   export const ProductModal = ({ open, onOpenChange, product, onSave }:  ProductModalProps) => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: product?.name || "",
-    price: product?.price || "",
-    stock: product?.stock || "",
-    description: product?.description || "",
-    image: product?.image || ""
-  });
-
+  const [formData, setFormData] = useState<Product>({
+        id: product?.id || Date.now().toString(),
+        name: product?.name || "",
+        price: product?.price || 0,
+        originalPrice: product?.originalPrice,
+        image: product?.image || "",
+        category: product?.category || "",
+        status: product?.status || "active",
+        stock: product?.stock || 0,
+        description: product?.description || "",
+    });
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
       title: product ? "Product updated" : "Product created",
       description: `${formData.name} has been ${product ? "updated" : "created"} successfully.`,
     });
-    onOpenChange(false);
+    onSave(formData);
   };
-
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+       const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (ev.target?.result) {
+            handleChange("image", ev.target.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -100,6 +119,32 @@ export const ProductModal = ({ open, onOpenChange, product }: ProductModalProps)
               onChange={(e) => handleChange("image", e.target.value)}
               placeholder="https://example.com/image.jpg"
             />
+          </div>
+          <div>
+            <Label>Product Image</Label>
+            <div className="flex items-center gap-4">
+              {formData.image && (
+                <img
+                  src={formData.image}
+                  alt="preview"
+                  className="w-16 h-16 object-cover rounded"
+                />
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {product ? "Change Image" : "Upload Image"}
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

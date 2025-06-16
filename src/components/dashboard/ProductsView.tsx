@@ -5,37 +5,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import { ProductModal } from "./ProductModal";
+import { useProducts, Product } from "@/context/ProductContext";
 
 export const ProductsView = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
 
-  const products = [
-    {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      price: 199.99,
-      stock: 45,
-      status: "active",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop"
-    },
-    {
-      id: 2,
-      name: "Smart Fitness Watch",
-      price: 299.99,
-      stock: 23,
-      status: "active",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop"
-    },
-    {
-      id: 3,
-      name: "Bluetooth Speaker",
-      price: 79.99,
-      stock: 0,
-      status: "out_of_stock",
-      image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=100&h=100&fit=crop"
-    }
-  ];
+    const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const { products, addProduct, updateProduct } = useProducts();
+
+  // const products = [
+  //   {
+  //     id: 1,
+  //     name: "Premium Wireless Headphones",
+  //     price: 199.99,
+  //     stock: 45,
+  //     status: "active",
+  //     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Smart Fitness Watch",
+  //     price: 299.99,
+  //     stock: 23,
+  //     status: "active",
+  //     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Bluetooth Speaker",
+  //     price: 79.99,
+  //     stock: 0,
+  //     status: "out_of_stock",
+  //     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=100&h=100&fit=crop"
+  //   }
+  // ];
 
   const handleAddProduct = () => {
     setEditingProduct(null);
@@ -61,7 +64,7 @@ export const ProductsView = () => {
       </div>
 
       <div className="grid gap-4">
-        {products.map((product) => (
+      {products.map((product) => (
           <Card key={product.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -110,6 +113,14 @@ export const ProductsView = () => {
         open={showModal} 
         onOpenChange={setShowModal}
         product={editingProduct}
+        onSave={(prod) => {
+          if (editingProduct) {
+            updateProduct(prod);
+          } else {
+            addProduct(prod);
+          }
+          setShowModal(false);
+        }}
       />
     </div>
   );

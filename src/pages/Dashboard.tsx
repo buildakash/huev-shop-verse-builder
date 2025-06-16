@@ -7,6 +7,7 @@ import { AnalyticsView } from "@/components/dashboard/AnalyticsView";
 import { OrdersView } from "@/components/dashboard/OrdersView";
 import { TemplatesView } from "@/components/dashboard/TemplatesView";
 import { SettingsView } from "@/components/dashboard/SettingsView";
+import { ProductProvider } from "@/context/ProductContext";
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState("dashboard");
@@ -30,7 +31,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+   <ProductProvider>
+     <div className="min-h-screen bg-background flex">
       <Sidebar 
         activeView={activeView} 
         setActiveView={setActiveView}
@@ -44,6 +46,7 @@ const Dashboard = () => {
         </main>
       </div>
     </div>
+   </ProductProvider>
   );
 };
 
